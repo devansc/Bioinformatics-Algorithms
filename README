@@ -1,0 +1,14 @@
+Lab 2 -- Team 5
+Devan Carlson       decarlso
+Matt Versaggi       mversagg
+Tim Mendez          tmendez
+Derrick Chabolla    dchaboll
+Madison Edwards     medwar01
+Kyle Meyer          kymeyer
+
+
+To compile:
+    javac Lab2.java
+
+To run:
+    java Lab2 [path/file_name]
