@@ -1,9 +1,16 @@
-package gccontent;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package gc.content;
 
 import java.awt.Font;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import java.awt.datatransfer.Clipboard;
+import java.awt.Toolkit;
 
 /**
  *
@@ -207,7 +214,29 @@ public class MainFrame extends javax.swing.JFrame {
             
         }
     }//GEN-LAST:event_fileButtonActionPerformed
-
+/*
+    public String getClipboardContents() {
+    String result = "";
+    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+    //odd: the Object param of getContents is not currently used
+    Transferable contents = clipboard.getContents(null);
+    boolean hasTransferableText =
+      (contents != null) &&
+      contents.isDataFlavorSupported(DataFlavor.stringFlavor)
+    ;
+    if (hasTransferableText) {
+      try {
+        result = (String)contents.getTransferData(DataFlavor.stringFlavor);
+      }
+      catch (UnsupportedFlavorException | IOException ex){
+        System.out.println(ex);
+        ex.printStackTrace();
+      }
+    }
+    return result;
+  }
+}*/
+    
     private void windowWidthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_windowWidthActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_windowWidthActionPerformed
@@ -227,6 +256,7 @@ public class MainFrame extends javax.swing.JFrame {
                 error.setVisible(true);
             }
             catch (Exception e) {
+                System.out.println(e);
                 JOptionPane error = new JOptionPane();
                 error.showMessageDialog(null, "Error occured", "Error", JOptionPane.ERROR_MESSAGE);
                 error.setVisible(true); // replace with popup?

@@ -1,4 +1,4 @@
-package gccontent;
+package gc.content;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
@@ -14,9 +14,9 @@ import java.lang.StringBuilder;
 public class GCReader {
     int windowWidth;
     int stepSize;
-    int nCount = 0;
 
     ArrayList<Double> gcCounts = new ArrayList<Double>();
+    ArrayList<Integer> nCounts = new ArrayList<Integer>();
     ArrayList<Double> gcPercents = new ArrayList<Double>();
 
     Reader fileReader;
@@ -53,32 +53,37 @@ public class GCReader {
 
 
     private void calculate() throws IOException {
-        int chr, position = 0, nCount = 0;
+        int chr, position = 0;
 
         while ((chr = fileReader.read()) != -1) {
             char basePair = (char) chr;
             switch(basePair) {
                 case 'G':
                     prep_gc_count(position);
+                    prep_n_count(position);
                     increment_gc_count(position);
                     position++;
                     break;
                 case 'C':
                     prep_gc_count(position);
+                    prep_n_count(position);
                     increment_gc_count(position);
                     position++;
                     break;
                 case 'A':
                     prep_gc_count(position);
+                    prep_n_count(position);
                     position++;
                     break;
                 case 'T':
                     prep_gc_count(position);
+                    prep_n_count(position);
                     position++;
                     break;
                 case 'N':
                     prep_gc_count(position);
-                    nCount++;
+                    prep_n_count(position);
+                    increment_n_count(position);
                     position++;
                     break;
                 default:
@@ -97,12 +102,15 @@ public class GCReader {
             if (stepSize * i + windowWidth >= finalPos) {
                 //System.out.println("i " + i + " finalPos " + finalPos);
                 int lenWindow = finalPos - stepSize * i;
+                lenWindow -= nCounts.get(i);
                 double gcContent = Math.round(gcCount / lenWindow * 10000);
                 //System.out.println("len window " + i + " is " + lenWindow);
                 gcContent = gcContent / 100;
                 gcPercents.add(gcContent);
             } else {
-                double gcContent = Math.round(gcCount / windowWidth * 10000);
+                int lenWindow = windowWidth;
+                lenWindow -= nCounts.get(i);
+                double gcContent = Math.round(gcCount / lenWindow * 10000);
                 //System.out.println("len window " + i + " is " + windowWidth);
                 gcContent = gcContent / 100;
                 gcPercents.add(gcContent);
@@ -118,6 +126,12 @@ public class GCReader {
             gcCounts.add((double)0);
         }
     }
+    private void prep_n_count(int position) {
+        int limit = position / stepSize;
+        while (nCounts.size () <= limit) {
+            nCounts.add((int)0);
+        }
+    }
 
     private void increment_gc_count(int position) {
         int limit = position / stepSize;
@@ -130,16 +144,38 @@ public class GCReader {
             limit--;
         }
     }
+    private void increment_n_count(int position) {
+        int limit = position / stepSize;
+        int numIncrements = windowWidth / stepSize; 
+        //System.out.println("incrementing gc count position " + position);
+
+        while (limit >= 0 && numIncrements-- > 0) {
+            //System.out.println("incrementing window " + limit);
+            nCounts.set(limit, nCounts.get(limit) + 1);      
+            limit--;
+        }
+    }
+    
+    private int calculateTotalNCount() {
+        int totalNCount = 0;
+        for (int i = 0; i < nCounts.size(); i++)
+            totalNCount += nCounts.get(i);
+        return totalNCount;
+    }
 
 
     //Builds a CSV file contianing the window positions and GC Counts for the input specified
     private void buildCSV(String filename) throws FileNotFoundException, UnsupportedEncodingException{
         PrintWriter writer = new PrintWriter(filename + "-Output.csv", "UTF-8");
 
-        writer.println("Starting Position of the Window,%GC");
+        writer.println("Starting Position of the Window,%GC,TotalNCount");
 
-        for(int i = 0; i < gcPercents.size(); i++)
-            writer.println((i * stepSize + 1) + "," + gcPercents.get(i));
+        for(int i = 0; i < gcPercents.size(); i++) {
+            if (i == 0) 
+                writer.println((i * stepSize + 1) + "," + gcPercents.get(i) + "," + calculateTotalNCount());
+            else 
+                writer.println((i * stepSize + 1) + "," + gcPercents.get(i));
+        }
 
         writer.close();
     }
@@ -148,10 +184,12 @@ public class GCReader {
     private String outputResults() throws FileNotFoundException, UnsupportedEncodingException{
         StringBuilder writer = new StringBuilder();
 
-        writer.append("Starting Position of the Window,%GC\n");
+        writer.append("Starting Position of the Window,%GC,TotalNCount\n");
         
         for(int i = 0; i < gcPercents.size(); i++) {
             String line = (i * stepSize + 1) + "," + gcPercents.get(i) + "\n";
+            if (i == 0) 
+                line = (i * stepSize + 1) + "," + gcPercents.get(i) + "," + calculateTotalNCount() + "\n";
             writer.append(line);
         }
 
