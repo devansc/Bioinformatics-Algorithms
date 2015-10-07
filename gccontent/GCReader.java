@@ -29,7 +29,9 @@ public class GCReader {
         this.stepSize = stepSize;
         
         calculate();
-        return outputResults();
+        
+        buildCSV(System.getProperty("user.home") + "/Desktop/Pasted");
+        return System.getProperty("user.home" ) + "/Desktop/Pasted-Output.csv";
     }
 
     

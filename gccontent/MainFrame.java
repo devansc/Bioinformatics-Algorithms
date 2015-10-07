@@ -11,6 +11,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import java.awt.datatransfer.Clipboard;
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 
 /**
  *
@@ -50,6 +54,7 @@ public class MainFrame extends javax.swing.JFrame {
         OutputText = new javax.swing.JTextPane();
         Title = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        PasteText = new javax.swing.JButton();
 
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -121,6 +126,13 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gc/content/dna-doublehelix.jpeg"))); // NOI18N
 
+        PasteText.setText("Paste Text");
+        PasteText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PasteTextActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -144,7 +156,8 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(fileButton)
-                            .addComponent(calculateButton)))
+                            .addComponent(calculateButton)
+                            .addComponent(PasteText)))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
@@ -185,9 +198,11 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(filenameText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fileButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(calculateButton)
+                        .addGap(48, 48, 48)
+                        .addComponent(PasteText)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -214,7 +229,7 @@ public class MainFrame extends javax.swing.JFrame {
             
         }
     }//GEN-LAST:event_fileButtonActionPerformed
-/*
+
     public String getClipboardContents() {
     String result = "";
     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -235,7 +250,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
     return result;
   }
-}*/
+
     
     private void windowWidthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_windowWidthActionPerformed
         // TODO add your handling code here:
@@ -264,11 +279,10 @@ public class MainFrame extends javax.swing.JFrame {
         }
         else if (OutputText.getText() != "") {
             try {
-                String output;
-                output = OutputText.getText() + "\n";
-                output += gcr.ReadGCContent(OutputText.getText(), Integer.parseInt(windowWidth.getText()), Integer.parseInt(stepSize.getText()));
-                OutputText.setText(output);
-                System.out.println(output);
+                String filename = gcr.ReadGCContent(OutputText.getText(), Integer.parseInt(windowWidth.getText()), Integer.parseInt(stepSize.getText()));
+                JOptionPane error = new JOptionPane();
+                error.showMessageDialog(null, "CSV file " + filename + " created", "Done", JOptionPane.ERROR_MESSAGE);
+                error.setVisible(true);
                 
             }
             catch (Exception e) {
@@ -280,6 +294,10 @@ public class MainFrame extends javax.swing.JFrame {
             error.setVisible(true);
         }
     }//GEN-LAST:event_calculateButtonActionPerformed
+
+    private void PasteTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PasteTextActionPerformed
+        OutputText.setText(getClipboardContents());
+    }//GEN-LAST:event_PasteTextActionPerformed
 
     /**
      * @param args the command line arguments
@@ -319,6 +337,7 @@ public class MainFrame extends javax.swing.JFrame {
     File GCfile;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextPane OutputText;
+    private javax.swing.JButton PasteText;
     private javax.swing.JLabel Title;
     private javax.swing.JButton calculateButton;
     private javax.swing.JButton fileButton;
