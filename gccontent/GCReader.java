@@ -27,7 +27,8 @@ public class GCReader {
         this.windowWidth = windowWidth;
         this.stepSize = stepSize;
         
-        calculate();
+        String basePairs = GetBasePairs(fileReader);
+        calculate(basePairs);
         
         buildCSV(System.getProperty("user.home") + "/Desktop/Pasted");
         return System.getProperty("user.home" ) + "/Desktop/Pasted-Output.csv";
@@ -48,162 +49,73 @@ public class GCReader {
         this.windowWidth = windowWidth;
         this.stepSize = stepSize;
         
-        calculate();
+
+        String basePairs = GetBasePairs(fileReader);
+        calculate(basePairs);
         buildCSV(file + "");
     }
 
-
-    private void calculate() throws IOException {
-        int chr, position = 0;
+    private String GetBasePairs(Reader fileReader) throws IOException{
+        String returnVal = "";
+        int chr;
 
         while ((chr = fileReader.read()) != -1) {
             char basePair = (char) chr;
-            switch(basePair) {
-                case 'G':
-                    prep_total_count(position);
-                    prep_gc_count(position);
-                    prep_n_count(position);
-                    increment_total_count(position);
-                    increment_gc_count(position);
-                    position++;
-                    break;
-                case 'C':
-                    prep_total_count(position);
-                    prep_gc_count(position);
-                    prep_n_count(position);
-                    increment_total_count(position);
-                    increment_gc_count(position);
-                    position++;
-                    break;
-                case 'A':
-                    prep_total_count(position);
-                    prep_gc_count(position);
-                    prep_n_count(position);
-                    increment_total_count(position);
-                    position++;
-                    break;
-                case 'T':
-                    prep_total_count(position);
-                    prep_gc_count(position);
-                    prep_n_count(position);
-                    increment_total_count(position);
-                    position++;
-                    break;
-                case 'N':
-                    position++;
-                    prep_total_count(position);
-                    prep_gc_count(position);
-                    prep_n_count(position);
-                    increment_total_count(position);
-                    increment_n_count(position);
-                    position++;
-                    break;
-                default:
-                    break;
+            if (basePair == 'A' || basePair == 'C' ||  basePair == 'T' ||  basePair == 'G' ||    basePair == 'N') {
+                returnVal += basePair;
             }
         }
-        for (int i = 0; i < gcCounts.size(); i++) {
-            //System.out.printf("Window %d gc-count %f\n", i, gcCounts.get(i));
+        return returnVal;
+    }
+
+    /*
+     * 01 23 4
+     * GG GA A
+     * 
+     * window 3
+     * step   2
+     */
+
+    private void calculate(String basePairs) throws IOException {
+        int chr, startingPos = 0, curPos = 0, windowPos = 0;
+
+
+        for ( ; startingPos < basePairs.length(); windowPos++) {
+            totalCounts.add((int)0);
+            gcCounts.add((double)0);
+            nCounts.add((int)0);
+            for ( ; curPos < startingPos + windowWidth && curPos < basePairs.length() ; curPos++ ){
+                switch(basePairs.charAt(curPos)) {
+                    case 'G': case 'C':
+                        gcCounts.set(windowPos, gcCounts.get(windowPos) + 1);
+                        totalCounts.set(windowPos, totalCounts.get(windowPos) + 1);
+                        break;
+                    case 'A': case 'T':
+                        totalCounts.set(windowPos, totalCounts.get(windowPos) + 1);
+                        break;
+                    case 'N':
+                        nCounts.set(windowPos, nCounts.get(windowPos) + 1);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            startingPos += stepSize;
+            curPos -= windowWidth - stepSize;
         }
-        calculateGCContent(position);
+        calculateGCContent(curPos);
     }
 
     private double calculateGCContent(int finalPos) {
         for (int i = 0; i < gcCounts.size(); i++) {
             double gcCount = (double) gcCounts.get(i);
-            if (stepSize * i + windowWidth >= finalPos) {
-                System.out.println("i " + i + " finalPos " + finalPos);
-                int lenWindow = finalPos - stepSize * i;
-                lenWindow -= nCounts.get(i);
-                double gcContent = Math.round(gcCount / (double) totalCounts.get(i) * 10000);
-                System.out.println("len window " + i + " is " + totalCounts.get(i));
-                gcContent = gcContent / 100;
-                gcPercents.add(gcContent);
-            } else {
-                int lenWindow = windowWidth;
-                lenWindow -= nCounts.get(i);
-                System.out.println("Len window " + totalCounts.get(i) + " gcCount " + gcCount);
-                double gcContent = Math.round(gcCount / (double) totalCounts.get(i) * 10000);
-                System.out.println("len window " + i + " is " + totalCounts.get(i));
-                gcContent = gcContent / 100;
-                gcPercents.add(gcContent);
-            }
-            System.out.printf("\n\nWindow %d gc-content %f\n", i, gcPercents.get(i));
+            double gcContent = Math.round(gcCount / (double) totalCounts.get(i) * 10000);
+            gcContent = gcContent / 100;
+            gcPercents.add(gcContent);
         }
         return 0;
     }
 
-    private void prep_total_count(int position) {
-        int limit = position / stepSize;
-        while (totalCounts.size() <= limit) {
-            totalCounts.add((int)0);
-        }
-    }
-
-    private void prep_gc_count(int position) {
-        int limit = position / stepSize;
-        while (gcCounts.size() <= limit) {
-            gcCounts.add((double)0);
-        }
-    }
-    private void prep_n_count(int position) {
-        int limit = position / stepSize;
-        while (nCounts.size () <= limit) {
-            nCounts.add((int)0);
-        }
-    }
-
-    /*
-     * 012 345 678 9
-     * GGG AGG GAG GGAGGGA 
-     * 
-     * window 5
-     * step   3
-     */
-
-    private void increment_gc_count(int position) {
-        int limit = position / stepSize;
-        int numIncrements = (windowWidth + stepSize - 1) / stepSize;
-
-        if (position > (limit - 1) + windowWidth) 
-            numIncrements--;
-        System.out.println("incrementing gc count position " + position + " numIncrements " + numIncrements);
-
-        while (limit >= 0 && numIncrements-- > 0) {
-            System.out.println("incrementing window " + limit);
-            gcCounts.set(limit, gcCounts.get(limit) + 1);      
-            limit--;
-        }
-    }
-    private void increment_total_count(int position) {
-        int limit = position / stepSize;
-        int numIncrements = (windowWidth + stepSize - 1) / stepSize;
-
-        if (position > (limit - 1) + windowWidth) 
-            numIncrements--;
-        System.out.println("incrementing total count position " + position + " numIncrements " + numIncrements + " windowWidth " + windowWidth + " step " +stepSize);
-
-        while (limit >= 0 && numIncrements-- > 0) {
-            System.out.println("incrementing window " + limit);
-            totalCounts.set(limit, totalCounts.get(limit) + 1);      
-            limit--;
-        }
-    }
-    
-    private void increment_n_count(int position) {
-        int limit = position / stepSize;
-        int numIncrements = (windowWidth + stepSize - 1) / stepSize;
-
-        if (position > (limit - 1) + windowWidth) 
-            numIncrements--;
-        System.out.println("incrementing n count position " + position);
-
-        while (limit >= 0 && numIncrements-- > 0) {
-            //System.out.println("incrementing window " + limit);
-            nCounts.set(limit, nCounts.get(limit) + 1);      
-            limit--;
-        }
-    }
     
     private int calculateTotalNCount() {
         int totalNCount = 0;
