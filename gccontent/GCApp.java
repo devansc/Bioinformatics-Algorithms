@@ -270,7 +270,7 @@ public class GCApp extends javax.swing.JFrame {
                 error.setVisible(true); // replace with popup?
             }
         }
-        else if (OutputText.getText() != "") {
+        else if (!OutputText.getText().equals("")) {
             try {
                 String filename = gcr.ReadGCContent(OutputText.getText(), Integer.parseInt(windowWidth.getText()), Integer.parseInt(stepSize.getText()));
                 JOptionPane error = new JOptionPane();
@@ -281,9 +281,13 @@ public class GCApp extends javax.swing.JFrame {
             catch (Exception e) {
                 System.out.println("error occurred"); // replace with popup?
             }
+        } else if (windowWidth.getText().equals("") || stepSize.getText().equals("")) {
+            JOptionPane error = new JOptionPane();
+            error.showMessageDialog(null, "Enter step and window size", "Error", JOptionPane.ERROR_MESSAGE);
+            error.setVisible(true);
         } else {
             JOptionPane error = new JOptionPane();
-            error.showMessageDialog(null, "You gotta enter some options bro", "Error", JOptionPane.ERROR_MESSAGE);
+            error.showMessageDialog(null, "Paste a DNA Sequence or choose a FASTA file", "Error", JOptionPane.ERROR_MESSAGE);
             error.setVisible(true);
         }
     }//GEN-LAST:event_calculateButtonActionPerformed
