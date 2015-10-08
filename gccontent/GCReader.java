@@ -60,7 +60,7 @@ public class GCReader {
         int chr;
 
         while ((chr = fileReader.read()) != -1) {
-            char basePair = (char) chr;
+            char basePair = Character.toUpperCase((char)chr);
             if (basePair == 'A' || basePair == 'C' ||  basePair == 'T' ||  basePair == 'G' ||    basePair == 'N') {
                 returnVal += basePair;
             }
