@@ -15,6 +15,7 @@ public class GCReader {
 
     ArrayList<Double> gcCounts = new ArrayList<Double>();
     ArrayList<Integer> nCounts = new ArrayList<Integer>();
+    ArrayList<Integer> totalCounts = new ArrayList<Integer>();
     ArrayList<Double> gcPercents = new ArrayList<Double>();
 
     Reader fileReader;
@@ -59,30 +60,41 @@ public class GCReader {
             char basePair = (char) chr;
             switch(basePair) {
                 case 'G':
+                    prep_total_count(position);
                     prep_gc_count(position);
                     prep_n_count(position);
+                    increment_total_count(position);
                     increment_gc_count(position);
                     position++;
                     break;
                 case 'C':
+                    prep_total_count(position);
                     prep_gc_count(position);
                     prep_n_count(position);
+                    increment_total_count(position);
                     increment_gc_count(position);
                     position++;
                     break;
                 case 'A':
+                    prep_total_count(position);
                     prep_gc_count(position);
                     prep_n_count(position);
+                    increment_total_count(position);
                     position++;
                     break;
                 case 'T':
+                    prep_total_count(position);
                     prep_gc_count(position);
                     prep_n_count(position);
+                    increment_total_count(position);
                     position++;
                     break;
                 case 'N':
+                    position++;
+                    prep_total_count(position);
                     prep_gc_count(position);
                     prep_n_count(position);
+                    increment_total_count(position);
                     increment_n_count(position);
                     position++;
                     break;
@@ -100,29 +112,37 @@ public class GCReader {
         for (int i = 0; i < gcCounts.size(); i++) {
             double gcCount = (double) gcCounts.get(i);
             if (stepSize * i + windowWidth >= finalPos) {
-                //System.out.println("i " + i + " finalPos " + finalPos);
+                System.out.println("i " + i + " finalPos " + finalPos);
                 int lenWindow = finalPos - stepSize * i;
                 lenWindow -= nCounts.get(i);
-                double gcContent = Math.round(gcCount / lenWindow * 10000);
-                //System.out.println("len window " + i + " is " + lenWindow);
+                double gcContent = Math.round(gcCount / (double) totalCounts.get(i) * 10000);
+                System.out.println("len window " + i + " is " + totalCounts.get(i));
                 gcContent = gcContent / 100;
                 gcPercents.add(gcContent);
             } else {
                 int lenWindow = windowWidth;
                 lenWindow -= nCounts.get(i);
-                double gcContent = Math.round(gcCount / lenWindow * 10000);
-                //System.out.println("len window " + i + " is " + windowWidth);
+                System.out.println("Len window " + totalCounts.get(i) + " gcCount " + gcCount);
+                double gcContent = Math.round(gcCount / (double) totalCounts.get(i) * 10000);
+                System.out.println("len window " + i + " is " + totalCounts.get(i));
                 gcContent = gcContent / 100;
                 gcPercents.add(gcContent);
             }
-            //System.out.printf("\n\nWindow %d gc-content %f\n", i, gcPercents.get(i));
+            System.out.printf("\n\nWindow %d gc-content %f\n", i, gcPercents.get(i));
         }
         return 0;
     }
 
+    private void prep_total_count(int position) {
+        int limit = position / stepSize;
+        while (totalCounts.size() <= limit) {
+            totalCounts.add((int)0);
+        }
+    }
+
     private void prep_gc_count(int position) {
         int limit = position / stepSize;
-        while (gcCounts.size () <= limit) {
+        while (gcCounts.size() <= limit) {
             gcCounts.add((double)0);
         }
     }
@@ -133,21 +153,50 @@ public class GCReader {
         }
     }
 
+    /*
+     * 012 345 678 9
+     * GGG AGG GAG GGAGGGA 
+     * 
+     * window 5
+     * step   3
+     */
+
     private void increment_gc_count(int position) {
         int limit = position / stepSize;
-        int numIncrements = windowWidth / stepSize; 
-        //System.out.println("incrementing gc count position " + position);
+        int numIncrements = (windowWidth + stepSize - 1) / stepSize;
+
+        if (position > (limit - 1) + windowWidth) 
+            numIncrements--;
+        System.out.println("incrementing gc count position " + position + " numIncrements " + numIncrements);
 
         while (limit >= 0 && numIncrements-- > 0) {
-            //System.out.println("incrementing window " + limit);
+            System.out.println("incrementing window " + limit);
             gcCounts.set(limit, gcCounts.get(limit) + 1);      
             limit--;
         }
     }
+    private void increment_total_count(int position) {
+        int limit = position / stepSize;
+        int numIncrements = (windowWidth + stepSize - 1) / stepSize;
+
+        if (position > (limit - 1) + windowWidth) 
+            numIncrements--;
+        System.out.println("incrementing total count position " + position + " numIncrements " + numIncrements + " windowWidth " + windowWidth + " step " +stepSize);
+
+        while (limit >= 0 && numIncrements-- > 0) {
+            System.out.println("incrementing window " + limit);
+            totalCounts.set(limit, totalCounts.get(limit) + 1);      
+            limit--;
+        }
+    }
+    
     private void increment_n_count(int position) {
         int limit = position / stepSize;
-        int numIncrements = windowWidth / stepSize; 
-        //System.out.println("incrementing gc count position " + position);
+        int numIncrements = (windowWidth + stepSize - 1) / stepSize;
+
+        if (position > (limit - 1) + windowWidth) 
+            numIncrements--;
+        System.out.println("incrementing n count position " + position);
 
         while (limit >= 0 && numIncrements-- > 0) {
             //System.out.println("incrementing window " + limit);

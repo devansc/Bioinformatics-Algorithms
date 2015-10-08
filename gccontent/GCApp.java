@@ -280,6 +280,7 @@ public class GCApp extends javax.swing.JFrame {
             }
             catch (Exception e) {
                 System.out.println("error occurred"); // replace with popup?
+                System.out.println(e); // replace with popup?
             }
         } else if (windowWidth.getText().equals("") || stepSize.getText().equals("")) {
             JOptionPane error = new JOptionPane();
