@@ -1,5 +1,3 @@
-package gc.content;
-
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;

@@ -1,0 +1,17 @@
+Team 5
+Lab 2-2
+
+Devan Carlson
+Matt Versaggi
+Tim Mendez
+
+To compile: 
+    make
+
+To run:
+    java -jar GCApp.jar
+                           (OR)
+    java GCApp
+    
+To clean:
+    make clean

@@ -1,10 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package gc.content;
-
 import java.awt.Font;
 import java.io.File;
 import javax.swing.JFileChooser;
@@ -18,14 +11,14 @@ import java.io.IOException;
 
 /**
  *
- * @author jessica
+ * @author Devan Carlson, Matt Versaggi, Tim Mendez
  */
-public class MainFrame extends javax.swing.JFrame {
+public class GCApp extends javax.swing.JFrame {
 
     /**
-     * Creates new form MainFrame
+     * Creates new form GCApp
      */
-    public MainFrame() {
+    public GCApp() {
         initComponents();
         Title.setFont(new Font("Serif", Font.PLAIN, 28));
     }
@@ -124,7 +117,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         Title.setText("GC-Content Analyzer");
 
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gc/content/dna-doublehelix.jpeg"))); // NOI18N
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("dna-doublehelix.jpeg"))); // NOI18N
 
         PasteText.setText("Paste Text");
         PasteText.addActionListener(new java.awt.event.ActionListener() {
@@ -316,20 +309,20 @@ public class MainFrame extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GCApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GCApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GCApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GCApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainFrame().setVisible(true);
+                new GCApp().setVisible(true);
             }
         });
     }
