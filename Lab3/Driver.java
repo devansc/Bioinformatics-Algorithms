@@ -1,12 +1,8 @@
 /**
  * Main Driver class for Lab 3
  * 
- * @author (your name) 
- * @version 1.0
+ * @author Team 5
  */
-
-// Imports
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -19,9 +15,6 @@ public class Driver
     private static File fasta;
     private static File gtf;
 
-    /**
-     * Main method
-     */
     public static void main(String[] args) throws FileNotFoundException, IOException {
         int sequenceLength;
         

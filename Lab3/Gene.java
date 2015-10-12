@@ -1,9 +1,8 @@
 
 /**
- * Write a description of class Gene here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Lab 3
+ *
+ * @author Team 5
  */
 
 import java.util.ArrayList;
@@ -17,18 +16,12 @@ public class Gene
     private int geneSize;
     private ArrayList<Exon> exons;
     
-    /**
-     * Constructor for objects of class Gene
-     */
     public Gene(String geneName)
     {
         name = geneName;
         exons = new ArrayList();
     }
 
-    /**
-     * Adds a new exon to the list of known exons for this gene
-     */
     public void newExon(Exon toAdd) {
         exons.add(toAdd);
     }
