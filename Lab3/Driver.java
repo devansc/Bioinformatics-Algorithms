@@ -15,11 +15,13 @@ public class Driver
     private static File fasta;
     private static File gtf;
 
-    public Driver(File fasta, File gtf) throws FileNotFoundException, IOException {
-        int sequenceLength;
+    public Driver(File fasta, File gtf) {
         this.fasta = fasta;
         this.gtf = gtf;
+    }
 
+    private start() throws IOException {
+        int sequenceLength;
         genes = new ArrayList();
         in =  new Scanner(gtf);
         
