@@ -39,6 +39,19 @@ public class Gene
             System.out.println("\t\tExon " + i + ": " + exons.get(i).toString());
         }
     }
+
+    public void calculateGeneSize() {
+        int lastBP;
+        int firstBP;
+        if (stopCodon < startCodon) { // backwards
+            lastBP = exons.get(0).getStart() + 3;
+            firstBP = exons.get(exons.size() - 1).getStop();
+        } else { 
+            lastBP = exons.get(exons.size() - 1).getStop() - 3;
+            firstBP = exons.get(0).getStart();
+        }
+        geneSize = Math.abs(lastBP - firstBP);
+    }
     
     /**
      * Returns the list of exons contained within this gene
