@@ -44,10 +44,10 @@ public class Gene
         int lastBP;
         int firstBP;
         if (stopCodon < startCodon) { // backwards
-            lastBP = exons.get(0).getStart() + 3;
+            lastBP = exons.get(0).getStart();
             firstBP = exons.get(exons.size() - 1).getStop();
         } else { 
-            lastBP = exons.get(exons.size() - 1).getStop() - 3;
+            lastBP = exons.get(exons.size() - 1).getStop();
             firstBP = exons.get(0).getStart();
         }
         geneSize = Math.abs(lastBP - firstBP);
