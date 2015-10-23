@@ -22,32 +22,38 @@ public class SuffixTree {
 
       for(int i = 0; i < sequence.length(); i++) {
          traversal = traverse(root, null, sequence.substring(i));
-
+         
       }
    }
 
    //Returns last traveresed parent node and index of last matched char
    private TraverseInfo traverse(Node current, Node parent, String toMatch) {
-      int j = current.startIdx, i;
+      int j = current.getStartIdx(), i = 0;
+      Node newCur = null;
 
-      if(current.startIdx != -1) {
-         for(i = 0; j < current.endIdx && i < toMatch.length; i++, j++) {
+      if(current.getStartIdx() != -1) {
+         for(; j < current.getEndIdx() && i < toMatch.length(); i++, j++) {
             //If should split
-            if(toMatch.charAt(i) != sequence.charAt(j) {
+            if(toMatch.charAt(i) != sequence.charAt(j)) {
                return new TraverseInfo(j - 1, current, parent);
             }
          }
       }
 
-      if(current instanceOf InternalNode) {
-         if(toMatch.charAt(i) == 'a' && current.a) {
-            traverse(current.a, toMatch.substring(i));
-         }
-      }
+      InternalNode tmp = (InternalNode)current;
 
-      TraverseInfo data;
+      if(toMatch.charAt(i) == 'a' && tmp.a != null)
+         newCur = tmp.a;
+      else if(toMatch.charAt(i) == 't' && tmp.t != null)
+         newCur = tmp.t;
+      else if(toMatch.charAt(i) == 'c' && tmp.c != null)
+         newCur = tmp.c;
+      else if (toMatch.charAt(i) == 'g' && tmp.g != null)
+         newCur = tmp.g;
+      else
+         System.out.println("SHOULD NEVER HIT THIS");
 
-      return data;
+      return traverse(newCur, current, toMatch.substring(i));
    }
 
    //Adding another leaf node to an preexisting leaf node
@@ -101,6 +107,15 @@ public class SuffixTree {
                System.out.println("Error: Could not add child " + ch + " to internal node");
          }
       }
+
+      public int getStartIdx() {
+         return startIdx;
+      }
+
+      public int getEndIdx() {
+         return endIdx;
+      }
+
    }
 
    private class LeafNode extends Indices implements Node {
@@ -110,6 +125,14 @@ public class SuffixTree {
          index = idx;
 	 this.startIdx = startIdx;
          this.endIdx = endIdx;
+      }
+
+      public int getStartIdx() {
+         return startIdx;
+      }
+
+      public int getEndIdx() {
+         return endIdx;
       }
    }
 
