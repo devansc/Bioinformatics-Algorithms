@@ -2,15 +2,26 @@ import java.util.*;
 
 public class SuffixTree {
    private InternalNode root;
-   
+   private String sequence;
+
+   public SuffixTree(String dna) {
+      root = new InternalNode(0, dna.length() - 1);
+      sequence = dna;
+      buildTree();
+   }
+
    public ArrayList findString(String toFind) {
       return new ArrayList();
    }
 
-   public void buildTree(String dna) {
-      Node child = new LeafNode(1, 0, dna.length() - 1);
+   private void buildTree() {
+      Node child = new LeafNode(1, 0, sequence.length() - 1);
 
-      root.addChild(dna.charAt('0'), child);
+      root.addChild(sequence.charAt(0), child);
+
+      for(int i = 0; i < sequence.length(); i++) {
+         
+      }
    }
 
    private class InternalNode extends Indices implements Node {
