@@ -22,7 +22,23 @@ public class SuffixTree {
 
       for(int i = 0; i < sequence.length(); i++) {
          traversal = traverse(root, null, sequence.substring(i));
-         
+
+         //If root case
+         if(traversal.indexOfChar == -1) {
+            if(sequence.substring(i).charAt(0) == 'a')
+               root.a = new LeafNode(i, i, sequence.length() - 1);
+            if(sequence.substring(i).charAt(0) == 't')
+               root.t = new LeafNode(i, i, sequence.length() - 1);
+            if(sequence.substring(i).charAt(0) == 'c')
+               root.c = new LeafNode(i, i, sequence.length() - 1);
+            if(sequence.substring(i).charAt(0) == 'g')
+               root.g = new LeafNode(i, i, sequence.length() - 1);
+            if(sequence.substring(i).charAt(0) == '$')
+               root.dolla = new LeafNode(i, i, sequence.length() - 1);
+         }
+         else {
+            graft(traversal, i);
+         }
       }
    }
 
@@ -35,11 +51,16 @@ public class SuffixTree {
          for(; j < current.getEndIdx() && i < toMatch.length(); i++, j++) {
             //If should split
             if(toMatch.charAt(i) != sequence.charAt(j)) {
-               return new TraverseInfo(j - 1, current, parent);
+               return new TraverseInfo(j - 1, current, parent, toMatch.substring(i), sequence.charAt(current.getStartIdx()));
             }
          }
       }
+      else {
+         //Root case
+         return new TraverseInfo(-1, null, null, toMatch, '.');
+      }
 
+      //We know current is an internal node if we get past the loop
       InternalNode tmp = (InternalNode)current;
 
       if(toMatch.charAt(i) == 'a' && tmp.a != null)
@@ -57,19 +78,43 @@ public class SuffixTree {
    }
 
    //Adding another leaf node to an preexisting leaf node
-   private void graft() {
-      
+   private void graft(TraverseInfo data, int leafLabel) {
+      InternalNode parent = (InternalNode)data.parent;
+      Node current = data.current;
+      int charIdx = data.indexOfChar;
+      String toMatch = data.toMatch;
+      char pathTaken = data.pathTaken;
+
+      switch(toMatch.charAt(0)) {
+         case 'a':
+            if(pathTaken == 'a') {
+               parent.a = new InternalNode(current.getStartIdx(), charIdx);
+               ((InternalNode)parent.a).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 't':
+                     ((InternalNode)parent.a).t = current;
+                     break;
+               }
+            }
+            break;
+      }
+      current.setStartIdx(charIdx + 1);
    }
 
    private class TraverseInfo {
       int indexOfChar;
+      String toMatch;
       Node current;
       Node parent;
+      char pathTaken;
 
-      public TraverseInfo(int idx, Node cur, Node par) {
+      public TraverseInfo(int idx, Node cur, Node par, String toMatch, char path) {
          indexOfChar = idx;
          current = cur;
          parent = par;
+         this.toMatch = toMatch;
+         this.pathTaken = path;
       }
    }
 
@@ -116,6 +161,13 @@ public class SuffixTree {
          return endIdx;
       }
 
+      public void setStartIdx(int idx) {
+         startIdx = idx;
+      }
+
+      public void setEndIdx(int idx) {
+         endIdx = idx;
+      }
    }
 
    private class LeafNode extends Indices implements Node {
@@ -133,6 +185,14 @@ public class SuffixTree {
 
       public int getEndIdx() {
          return endIdx;
+      }
+
+      public void setStartIdx(int idx) {
+         startIdx = idx;
+      }
+
+      public void setEndIdx(int idx) {
+         //Never call this
       }
    }
 
