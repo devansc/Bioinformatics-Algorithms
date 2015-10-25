@@ -20,6 +20,6 @@ public class Driver {
       while(scan.hasNextLine())
          sequence += scan.nextLine();
 
-      SuffixTree tree = new SuffixTree(sequence);
+      SuffixTree tree = new SuffixTree(sequence + "$");
    }
 }

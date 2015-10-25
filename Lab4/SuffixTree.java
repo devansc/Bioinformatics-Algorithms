@@ -6,19 +6,57 @@ public class SuffixTree {
 
    public SuffixTree(String dna) {
       root = new InternalNode(-1, -1);
-      sequence = dna;
+      sequence = dna.toLowerCase();
+      System.out.println(sequence);
       buildTree();
    }
 
    public ArrayList findString(String toFind) {
       return new ArrayList();
    }
+   
+   private void printTree(Node cur) {
+      System.out.println("-------------------------");
+      System.out.println(cur.getStartIdx());
+      System.out.println(cur.getEndIdx());
+       //                  A     T      C      G      $
+      boolean[] test = new boolean[]{false, false, false, false, false};
+      
+      if(cur instanceof InternalNode && ((InternalNode)cur).a != null) {
+         System.out.println("a");
+         test[0] = true;
+      }
+      if(cur instanceof InternalNode && ((InternalNode)cur).t != null) {
+         System.out.println("t");
+         test[1] = true;
+      }
+      if(cur instanceof InternalNode && ((InternalNode)cur).c != null) {
+         System.out.println("c");
+         test[2] = true;
+      }
+      if(cur instanceof InternalNode && ((InternalNode)cur).g != null) {
+         System.out.println("g");
+         test[3] = true;
+      } 
+      if(cur instanceof InternalNode && ((InternalNode)cur).dolla != null) {
+         System.out.println("$$$$$$$$");
+         test[4] = true;
+      }
+      
+      if(test[0])
+         printTree(((InternalNode)cur).a);
+      if(test[1])
+         printTree(((InternalNode)cur).t);
+      if(test[2])
+         printTree(((InternalNode)cur).c);
+      if(test[3])
+         printTree(((InternalNode)cur).g);
+      if(test[4])
+         printTree(((InternalNode)cur).dolla);
+   }
 
    private void buildTree() {
-      Node child = new LeafNode(1, 0, sequence.length() - 1);
       TraverseInfo traversal;
-
-      root.addChild(sequence.charAt(0), child);
 
       for(int i = 0; i < sequence.length(); i++) {
          traversal = traverse(root, null, sequence.substring(i));
@@ -40,6 +78,8 @@ public class SuffixTree {
             graft(traversal, i);
          }
       }
+      
+      printTree(root);
    }
 
    //Returns last traveresed parent node and index of last matched char
@@ -84,22 +124,402 @@ public class SuffixTree {
       int charIdx = data.indexOfChar;
       String toMatch = data.toMatch;
       char pathTaken = data.pathTaken;
+      int curStartIdx = current.getStartIdx();
+
+      current.setStartIdx(charIdx + 1);
 
       switch(toMatch.charAt(0)) {
          case 'a':
             if(pathTaken == 'a') {
-               parent.a = new InternalNode(current.getStartIdx(), charIdx);
+               parent.a = new InternalNode(curStartIdx, charIdx);
                ((InternalNode)parent.a).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 't':
                      ((InternalNode)parent.a).t = current;
                      break;
+                  case 'c':
+                     ((InternalNode)parent.a).c = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.a).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.a).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 't') {
+               parent.t = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.t).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 't':
+                     ((InternalNode)parent.t).t = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.t).c = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.t).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.t).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'c') {
+               parent.c = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.c).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'c':
+                     ((InternalNode)parent.c).c = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.c).t = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.c).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.c).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'g') {
+               parent.g = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.g).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'g':
+                     ((InternalNode)parent.g).g = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.g).t = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.g).c = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.g).dolla = current;
+                     break;
+               }
+            }
+            break;
+         case 't':
+            if(pathTaken == 'a') {
+               parent.a = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.a).t = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.a).a = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.a).c = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.a).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.a).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 't') {
+               parent.t = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.t).t = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.t).a = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.t).c = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.t).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.t).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'c') {
+               parent.c = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.c).t = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.c).a = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.c).c = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.c).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.c).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'g') {
+               parent.g = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.g).t = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.g).a = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.g).g = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.g).c = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.g).dolla = current;
+                     break;
+               }
+            }
+            break;
+         case 'c':
+            if(pathTaken == 'a') {
+               parent.a = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.a).c = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 't':
+                     ((InternalNode)parent.a).t = current;
+                     break;
+                  case 'a':
+                     ((InternalNode)parent.a).a = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.a).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.a).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 't') {
+               parent.t = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.t).c = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.t).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.t).t = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.t).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.t).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'c') {
+               parent.c = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.c).c = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.c).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.c).t = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.c).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.c).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'g') {
+               parent.g = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.g).c = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.g).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.g).t = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.g).g = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.g).dolla = current;
+                     break;
+               }
+            }
+            break;
+         case 'g':
+            if(pathTaken == 'a') {
+               parent.a = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.a).g = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.a).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.a).t = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.a).c = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.a).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 't') {
+               parent.t = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.t).g = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.t).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.t).t = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.t).c = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.t).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'c') {
+               parent.c = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.c).g = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.c).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.c).t = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.c).c = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.c).dolla = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'g') {
+               parent.g = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.g).g = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.g).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.g).t = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.g).c = current;
+                     break;
+                  case '$':
+                     ((InternalNode)parent.g).dolla = current;
+                     break;
+               }
+            }
+            break;
+         case '$':
+            if(pathTaken == 'a') {
+               parent.a = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.a).dolla = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 't':
+                     ((InternalNode)parent.a).t = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.a).c = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.a).g = current;
+                     break;
+                  case 'a':
+                     ((InternalNode)parent.a).a = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 't') {
+               parent.t = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.t).dolla = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.t).a = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.t).c = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.t).g = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.t).t = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'c') {
+               parent.c = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.c).dolla = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.c).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.c).t = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.c).g = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.c).c = current;
+                     break;
+               }
+            }
+            else if(pathTaken == 'g') {
+               parent.g = new InternalNode(curStartIdx, charIdx);
+               ((InternalNode)parent.g).dolla = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+
+               switch(sequence.charAt(charIdx + 1)) {
+                  case 'a':
+                     ((InternalNode)parent.g).a = current;
+                     break;
+                  case 't':
+                     ((InternalNode)parent.g).t = current;
+                     break;
+                  case 'c':
+                     ((InternalNode)parent.g).c = current;
+                     break;
+                  case 'g':
+                     ((InternalNode)parent.g).g = current;
+                     break;
                }
             }
             break;
       }
-      current.setStartIdx(charIdx + 1);
    }
 
    private class TraverseInfo {
@@ -175,7 +595,7 @@ public class SuffixTree {
 
       public LeafNode(int idx, int startIdx, int endIdx) {
          index = idx;
-	 this.startIdx = startIdx;
+         this.startIdx = startIdx;
          this.endIdx = endIdx;
       }
 
