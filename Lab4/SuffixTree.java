@@ -19,7 +19,7 @@ public class SuffixTree {
       System.out.println("-------------------------");
       System.out.println(cur.getStartIdx());
       System.out.println(cur.getEndIdx());
-       //                  A     T      C      G      $
+       //                               A     T      C      G      $
       boolean[] test = new boolean[]{false, false, false, false, false};
       
       if(cur instanceof InternalNode && ((InternalNode)cur).a != null) {
@@ -60,9 +60,11 @@ public class SuffixTree {
 
       for(int i = 0; i < sequence.length(); i++) {
          char curChar = sequence.substring(i).charAt(0);
+         
          //If root case
-         if(curChar == 'a' && root.a == null)
+         if(curChar == 'a' && root.a == null) {
             root.a = new LeafNode(i, i, sequence.length() - 1);
+         }
          else if(curChar == 't' && root.t == null)
             root.t = new LeafNode(i, i, sequence.length() - 1);
          else if(curChar == 'c' && root.c == null)
@@ -89,7 +91,6 @@ public class SuffixTree {
             graft(traversal, i);
          }
       }
-      
       printTree(root);
    }
 
@@ -98,7 +99,7 @@ public class SuffixTree {
       int j = current.getStartIdx(), i = 0;
       Node newCur = null;
 
-      for(; j < current.getEndIdx() && i < toMatch.length(); i++, j++, idxOfToMatch++) {
+      for(; j <= current.getEndIdx() + 1 && i < toMatch.length(); i++, j++, idxOfToMatch++) {
          //If should split
          if(toMatch.charAt(i) != sequence.charAt(j)) {
             return new TraverseInfo(j - 1, current, parent, toMatch.substring(i), sequence.charAt(current.getStartIdx()), idxOfToMatch);
@@ -107,7 +108,7 @@ public class SuffixTree {
 
       //We know current is an internal node if we get past the loop
       InternalNode tmp = (InternalNode)current;
-
+    
       if(toMatch.charAt(i) == 'a' && tmp.a != null)
          newCur = tmp.a;
       else if(toMatch.charAt(i) == 't' && tmp.t != null)
@@ -137,7 +138,7 @@ public class SuffixTree {
          case 'a':
             if(pathTaken == 'a') {
                parent.a = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.a).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.a).a = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 't':
@@ -156,7 +157,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 't') {
                parent.t = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.t).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.t).a = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 't':
@@ -175,7 +176,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'c') {
                parent.c = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.c).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.c).a = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'c':
@@ -194,7 +195,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'g') {
                parent.g = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.g).a = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.g).a = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'g':
@@ -215,7 +216,7 @@ public class SuffixTree {
          case 't':
             if(pathTaken == 'a') {
                parent.a = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.a).t = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.a).t = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -234,7 +235,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 't') {
                parent.t = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.t).t = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.t).t = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -253,7 +254,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'c') {
                parent.c = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.c).t = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.c).t = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -272,7 +273,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'g') {
                parent.g = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.g).t = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.g).t = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -293,7 +294,7 @@ public class SuffixTree {
          case 'c':
             if(pathTaken == 'a') {
                parent.a = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.a).c = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.a).c = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 't':
@@ -312,7 +313,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 't') {
                parent.t = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.t).c = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.t).c = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -331,7 +332,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'c') {
                parent.c = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.c).c = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.c).c = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -350,7 +351,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'g') {
                parent.g = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.g).c = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.g).c = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -371,7 +372,7 @@ public class SuffixTree {
          case 'g':
             if(pathTaken == 'a') {
                parent.a = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.a).g = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.a).g = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -390,7 +391,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 't') {
                parent.t = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.t).g = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.t).g = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -409,7 +410,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'c') {
                parent.c = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.c).g = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.c).g = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -428,7 +429,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'g') {
                parent.g = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.g).g = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.g).g = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -468,7 +469,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 't') {
                parent.t = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.t).dolla = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.t).dolla = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -487,7 +488,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'c') {
                parent.c = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.c).dolla = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.c).dolla = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -506,7 +507,7 @@ public class SuffixTree {
             }
             else if(pathTaken == 'g') {
                parent.g = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.g).dolla = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.g).dolla = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 'a':
@@ -525,7 +526,12 @@ public class SuffixTree {
             }
             break;
       }
+      printTree(root);
+      System.out.println("===============");
+      System.out.println("Graft count: " + graftCount++);
    }
+   
+   int graftCount = 1;
 
    private class TraverseInfo {
       int indexOfChar;
@@ -580,6 +586,10 @@ public class SuffixTree {
          }
       }
 
+      public boolean hasChildren() {
+         return a != null || t != null || c != null || g != null || dolla != null;
+      }
+      
       public int getStartIdx() {
          return startIdx;
       }
