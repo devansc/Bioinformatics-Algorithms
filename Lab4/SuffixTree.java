@@ -39,7 +39,7 @@ public class SuffixTree {
          test[3] = true;
       } 
       if(cur instanceof InternalNode && ((InternalNode)cur).dolla != null) {
-         System.out.println("$$$$$$$$");
+         System.out.println("$");
          test[4] = true;
       }
       
@@ -56,25 +56,36 @@ public class SuffixTree {
    }
 
    private void buildTree() {
-      TraverseInfo traversal;
+      TraverseInfo traversal = null;
 
       for(int i = 0; i < sequence.length(); i++) {
-         traversal = traverse(root, null, sequence.substring(i));
-
+         char curChar = sequence.substring(i).charAt(0);
          //If root case
-         if(traversal.indexOfChar == -1) {
-            if(sequence.substring(i).charAt(0) == 'a')
-               root.a = new LeafNode(i, i, sequence.length() - 1);
-            if(sequence.substring(i).charAt(0) == 't')
-               root.t = new LeafNode(i, i, sequence.length() - 1);
-            if(sequence.substring(i).charAt(0) == 'c')
-               root.c = new LeafNode(i, i, sequence.length() - 1);
-            if(sequence.substring(i).charAt(0) == 'g')
-               root.g = new LeafNode(i, i, sequence.length() - 1);
-            if(sequence.substring(i).charAt(0) == '$')
-               root.dolla = new LeafNode(i, i, sequence.length() - 1);
-         }
+         if(curChar == 'a' && root.a == null)
+            root.a = new LeafNode(i, i, sequence.length() - 1);
+         else if(curChar == 't' && root.t == null)
+            root.t = new LeafNode(i, i, sequence.length() - 1);
+         else if(curChar == 'c' && root.c == null)
+            root.c = new LeafNode(i, i, sequence.length() - 1);
+         else if(curChar == 'g' && root.g == null)
+            root.g = new LeafNode(i, i, sequence.length() - 1);
+         else if(curChar == '$' && root.dolla == null)
+            root.dolla = new LeafNode(i, i, sequence.length() - 1);
          else {
+            switch(curChar) {
+               case('a'):
+                  traversal = traverse(root.a, root, sequence.substring(i), i);
+                  break;
+               case('t'):
+                  traversal = traverse(root.t, root, sequence.substring(i), i);
+                  break;
+               case('c'):
+                  traversal = traverse(root.c, root, sequence.substring(i), i);
+                  break;
+               case('g'):
+                  traversal = traverse(root.g, root, sequence.substring(i), i);
+                  break;
+            }
             graft(traversal, i);
          }
       }
@@ -83,21 +94,15 @@ public class SuffixTree {
    }
 
    //Returns last traveresed parent node and index of last matched char
-   private TraverseInfo traverse(Node current, Node parent, String toMatch) {
+   private TraverseInfo traverse(Node current, Node parent, String toMatch, int idxOfToMatch) {
       int j = current.getStartIdx(), i = 0;
       Node newCur = null;
 
-      if(current.getStartIdx() != -1) {
-         for(; j < current.getEndIdx() && i < toMatch.length(); i++, j++) {
-            //If should split
-            if(toMatch.charAt(i) != sequence.charAt(j)) {
-               return new TraverseInfo(j - 1, current, parent, toMatch.substring(i), sequence.charAt(current.getStartIdx()));
-            }
+      for(; j < current.getEndIdx() && i < toMatch.length(); i++, j++, idxOfToMatch++) {
+         //If should split
+         if(toMatch.charAt(i) != sequence.charAt(j)) {
+            return new TraverseInfo(j - 1, current, parent, toMatch.substring(i), sequence.charAt(current.getStartIdx()), idxOfToMatch);
          }
-      }
-      else {
-         //Root case
-         return new TraverseInfo(-1, null, null, toMatch, '.');
       }
 
       //We know current is an internal node if we get past the loop
@@ -112,9 +117,9 @@ public class SuffixTree {
       else if (toMatch.charAt(i) == 'g' && tmp.g != null)
          newCur = tmp.g;
       else
-         System.out.println("SHOULD NEVER HIT THIS");
+         System.out.println("Should never get here");
 
-      return traverse(newCur, current, toMatch.substring(i));
+      return traverse(newCur, current, toMatch.substring(i), idxOfToMatch);
    }
 
    //Adding another leaf node to an preexisting leaf node
@@ -125,9 +130,9 @@ public class SuffixTree {
       String toMatch = data.toMatch;
       char pathTaken = data.pathTaken;
       int curStartIdx = current.getStartIdx();
+      int newLeafStartIdx = data.idxOfToMatch;
 
       current.setStartIdx(charIdx + 1);
-
       switch(toMatch.charAt(0)) {
          case 'a':
             if(pathTaken == 'a') {
@@ -444,7 +449,7 @@ public class SuffixTree {
          case '$':
             if(pathTaken == 'a') {
                parent.a = new InternalNode(curStartIdx, charIdx);
-               ((InternalNode)parent.a).dolla = new LeafNode(leafLabel, charIdx + 1, sequence.length() - 1);
+               ((InternalNode)parent.a).dolla = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
                switch(sequence.charAt(charIdx + 1)) {
                   case 't':
@@ -528,13 +533,15 @@ public class SuffixTree {
       Node current;
       Node parent;
       char pathTaken;
+      int idxOfToMatch;
 
-      public TraverseInfo(int idx, Node cur, Node par, String toMatch, char path) {
+      public TraverseInfo(int idx, Node cur, Node par, String toMatch, char path, int matchIdx) {
          indexOfChar = idx;
          current = cur;
          parent = par;
          this.toMatch = toMatch;
-         this.pathTaken = path;
+         pathTaken = path;
+         idxOfToMatch = matchIdx;
       }
    }
 
