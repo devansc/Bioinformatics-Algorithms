@@ -16,9 +16,6 @@ public class SuffixTree {
    }
    
    private void printTree(Node cur) {
-      System.out.println("-------------------------");
-      System.out.println(cur.getStartIdx());
-      System.out.println(cur.getEndIdx());
        //                               A     T      C      G      $
       boolean[] test = new boolean[]{false, false, false, false, false};
       
@@ -102,7 +99,16 @@ public class SuffixTree {
       for(; j <= current.getEndIdx() + 1 && i < toMatch.length(); i++, j++, idxOfToMatch++) {
          //If should split
          if(toMatch.charAt(i) != sequence.charAt(j)) {
-            return new TraverseInfo(j - 1, current, parent, toMatch.substring(i), sequence.charAt(current.getStartIdx()), idxOfToMatch);
+            if(toMatch.charAt(i) == 'a' && current instanceof InternalNode && ((InternalNode)current).a != null)
+               traverse(((InternalNode)current).a, current, toMatch.substring(i), idxOfToMatch);
+            else if(toMatch.charAt(i) == 't' && current instanceof InternalNode && ((InternalNode)current).t != null)
+               traverse(((InternalNode)current).t, current, toMatch.substring(i), idxOfToMatch);
+            else if(toMatch.charAt(i) == 'c' && current instanceof InternalNode && ((InternalNode)current).c != null)
+               traverse(((InternalNode)current).c, current, toMatch.substring(i), idxOfToMatch);
+            else if(toMatch.charAt(i) == 'g' && current instanceof InternalNode && ((InternalNode)current).g != null)
+               traverse(((InternalNode)current).g, current, toMatch.substring(i), idxOfToMatch);
+            else
+               return new TraverseInfo(j - 1, current, parent, toMatch.substring(i), sequence.charAt(current.getStartIdx()), idxOfToMatch);
          }
       }
 
@@ -133,402 +139,499 @@ public class SuffixTree {
       int curStartIdx = current.getStartIdx();
       int newLeafStartIdx = data.idxOfToMatch;
 
-      current.setStartIdx(charIdx + 1);
       switch(toMatch.charAt(0)) {
          case 'a':
             if(pathTaken == 'a') {
-               parent.a = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.a = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.a).a = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 't':
-                     ((InternalNode)parent.a).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.a).c = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.a).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.a).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 't':
+                        ((InternalNode)parent.a).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.a).c = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.a).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.a).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 't') {
-               parent.t = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.t = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.t).a = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 't':
-                     ((InternalNode)parent.t).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.t).c = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.t).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.t).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 't':
+                        ((InternalNode)parent.t).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.t).c = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.t).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.t).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'c') {
-               parent.c = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.c = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.c).a = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'c':
-                     ((InternalNode)parent.c).c = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.c).t = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.c).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.c).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'c':
+                        ((InternalNode)parent.c).c = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.c).t = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.c).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.c).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'g') {
-               parent.g = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.g = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.g).a = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'g':
-                     ((InternalNode)parent.g).g = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.g).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.g).c = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.g).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'g':
+                        ((InternalNode)parent.g).g = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.g).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.g).c = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.g).dolla = current;
+                        break;
+                  }
                }
             }
             break;
          case 't':
             if(pathTaken == 'a') {
-               parent.a = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.a = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.a).t = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.a).a = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.a).c = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.a).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.a).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.a).a = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.a).c = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.a).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.a).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 't') {
-               parent.t = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.t = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.t).t = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.t).a = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.t).c = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.t).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.t).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.t).a = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.t).c = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.t).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.t).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'c') {
-               parent.c = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.c = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.c).t = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.c).a = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.c).c = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.c).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.c).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.c).a = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.c).c = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.c).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.c).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'g') {
-               parent.g = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.g = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.g).t = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.g).a = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.g).g = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.g).c = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.g).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.g).a = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.g).g = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.g).c = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.g).dolla = current;
+                        break;
+                  }
                }
             }
             break;
          case 'c':
             if(pathTaken == 'a') {
-               parent.a = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.a = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.a).c = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 't':
-                     ((InternalNode)parent.a).t = current;
-                     break;
-                  case 'a':
-                     ((InternalNode)parent.a).a = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.a).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.a).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 't':
+                        ((InternalNode)parent.a).t = current;
+                        break;
+                     case 'a':
+                        ((InternalNode)parent.a).a = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.a).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.a).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 't') {
-               parent.t = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.t = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.t).c = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.t).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.t).t = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.t).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.t).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.t).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.t).t = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.t).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.t).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'c') {
-               parent.c = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.c = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.c).c = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.c).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.c).t = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.c).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.c).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.c).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.c).t = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.c).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.c).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'g') {
-               parent.g = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.g = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.g).c = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.g).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.g).t = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.g).g = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.g).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.g).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.g).t = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.g).g = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.g).dolla = current;
+                        break;
+                  }
                }
             }
             break;
          case 'g':
             if(pathTaken == 'a') {
-               parent.a = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.a = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.a).g = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.a).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.a).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.a).c = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.a).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.a).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.a).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.a).c = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.a).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 't') {
-               parent.t = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.t = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.t).g = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.t).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.t).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.t).c = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.t).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.t).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.t).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.t).c = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.t).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'c') {
-               parent.c = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.c = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.c).g = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.c).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.c).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.c).c = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.c).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.c).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.c).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.c).c = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.c).dolla = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'g') {
-               parent.g = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.g = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.g).g = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.g).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.g).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.g).c = current;
-                     break;
-                  case '$':
-                     ((InternalNode)parent.g).dolla = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.g).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.g).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.g).c = current;
+                        break;
+                     case '$':
+                        ((InternalNode)parent.g).dolla = current;
+                        break;
+                  }
                }
             }
             break;
          case '$':
             if(pathTaken == 'a') {
-               parent.a = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.a = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.a).dolla = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 't':
-                     ((InternalNode)parent.a).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.a).c = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.a).g = current;
-                     break;
-                  case 'a':
-                     ((InternalNode)parent.a).a = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 't':
+                        ((InternalNode)parent.a).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.a).c = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.a).g = current;
+                        break;
+                     case 'a':
+                        ((InternalNode)parent.a).a = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 't') {
-               parent.t = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.t = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.t).dolla = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.t).a = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.t).c = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.t).g = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.t).t = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.t).a = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.t).c = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.t).g = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.t).t = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'c') {
-               parent.c = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.c = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.c).dolla = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.c).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.c).t = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.c).g = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.c).c = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.c).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.c).t = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.c).g = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.c).c = current;
+                        break;
+                  }
                }
             }
             else if(pathTaken == 'g') {
-               parent.g = new InternalNode(curStartIdx, charIdx);
+               if(current.getEndIdx() != charIdx) {
+                  current.setStartIdx(charIdx + 1);
+                  parent.g = new InternalNode(curStartIdx, charIdx);
+               }
                ((InternalNode)parent.g).dolla = new LeafNode(leafLabel, newLeafStartIdx, sequence.length() - 1);
 
-               switch(sequence.charAt(charIdx + 1)) {
-                  case 'a':
-                     ((InternalNode)parent.g).a = current;
-                     break;
-                  case 't':
-                     ((InternalNode)parent.g).t = current;
-                     break;
-                  case 'c':
-                     ((InternalNode)parent.g).c = current;
-                     break;
-                  case 'g':
-                     ((InternalNode)parent.g).g = current;
-                     break;
+               if(current.getEndIdx() != charIdx) {
+                  switch(sequence.charAt(charIdx + 1)) {
+                     case 'a':
+                        ((InternalNode)parent.g).a = current;
+                        break;
+                     case 't':
+                        ((InternalNode)parent.g).t = current;
+                        break;
+                     case 'c':
+                        ((InternalNode)parent.g).c = current;
+                        break;
+                     case 'g':
+                        ((InternalNode)parent.g).g = current;
+                        break;
+                  }
                }
             }
             break;
       }
       printTree(root);
-      System.out.println("===============");
-      System.out.println("Graft count: " + graftCount++);
    }
    
    int graftCount = 1;
