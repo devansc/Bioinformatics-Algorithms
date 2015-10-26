@@ -16,6 +16,9 @@ public class SuffixTree {
    }
    
    private void printTree(Node cur) {
+      System.out.println("-------------------------");
+      System.out.println(cur.getStartIdx());
+      System.out.println(cur.getEndIdx());
        //                               A     T      C      G      $
       boolean[] test = new boolean[]{false, false, false, false, false};
       
@@ -99,22 +102,27 @@ public class SuffixTree {
       for(; j <= current.getEndIdx() + 1 && i < toMatch.length(); i++, j++, idxOfToMatch++) {
          //If should split
          if(toMatch.charAt(i) != sequence.charAt(j)) {
-            if(toMatch.charAt(i) == 'a' && current instanceof InternalNode && ((InternalNode)current).a != null)
+            if(toMatch.charAt(i) == 'a' && current instanceof InternalNode && ((InternalNode)current).a != null && j == current.getEndIdx() + 1)
                traverse(((InternalNode)current).a, current, toMatch.substring(i), idxOfToMatch);
-            else if(toMatch.charAt(i) == 't' && current instanceof InternalNode && ((InternalNode)current).t != null)
+            else if(toMatch.charAt(i) == 't' && current instanceof InternalNode && ((InternalNode)current).t != null && j == current.getEndIdx() + 1)
                traverse(((InternalNode)current).t, current, toMatch.substring(i), idxOfToMatch);
-            else if(toMatch.charAt(i) == 'c' && current instanceof InternalNode && ((InternalNode)current).c != null)
+            else if(toMatch.charAt(i) == 'c' && current instanceof InternalNode && ((InternalNode)current).c != null && j == current.getEndIdx() + 1)
                traverse(((InternalNode)current).c, current, toMatch.substring(i), idxOfToMatch);
-            else if(toMatch.charAt(i) == 'g' && current instanceof InternalNode && ((InternalNode)current).g != null)
+            else if(toMatch.charAt(i) == 'g' && current instanceof InternalNode && ((InternalNode)current).g != null && j == current.getEndIdx() + 1)
                traverse(((InternalNode)current).g, current, toMatch.substring(i), idxOfToMatch);
             else
                return new TraverseInfo(j - 1, current, parent, toMatch.substring(i), sequence.charAt(current.getStartIdx()), idxOfToMatch);
          }
       }
+      
+      if(j == current.getEndIdx() + 2) {
+         i--;
+         idxOfToMatch--;
+      }
 
       //We know current is an internal node if we get past the loop
       InternalNode tmp = (InternalNode)current;
-    
+      
       if(toMatch.charAt(i) == 'a' && tmp.a != null)
          newCur = tmp.a;
       else if(toMatch.charAt(i) == 't' && tmp.t != null)
@@ -631,7 +639,6 @@ public class SuffixTree {
             }
             break;
       }
-      printTree(root);
    }
    
    int graftCount = 1;
