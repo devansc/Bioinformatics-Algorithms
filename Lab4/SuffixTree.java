@@ -3,16 +3,87 @@ import java.util.*;
 public class SuffixTree {
    private InternalNode root;
    private String sequence;
-
+   private ArrayList<Integer> foundIndices;
+   
    public SuffixTree(String dna) {
       root = new InternalNode(-1, -1);
       sequence = dna.toLowerCase();
       System.out.println(sequence);
       buildTree();
    }
+   
+   public Node getRoot() {
+      return root;
+   }
 
-   public ArrayList findString(String toFind) {
-      return new ArrayList();
+   //Returns null on no match
+   public ArrayList findString(String toMatch, Node current) {      
+      foundIndices = new ArrayList<Integer>();
+      
+      switch(toMatch.charAt(0)) {
+         case('a'):
+            if(((InternalNode)current).a == null)
+               return null;
+            current = ((InternalNode)current).a;
+            break;
+         case('t'):
+            if(((InternalNode)current).t == null)
+               return null;
+            current = ((InternalNode)current).t;
+            break;
+         case('c'):
+            if(((InternalNode)current).c == null)
+               return null;
+            current = ((InternalNode)current).c;
+            break;
+         case('g'):
+            if(((InternalNode)current).g == null)
+               return null;
+            current = ((InternalNode)current).g;
+            break;
+         default:
+            return null;
+      }
+
+      int i, j;
+      for(i = current.getStartIdx(), j = 0; i <= current.getEndIdx(); i++, j++) {
+         if(sequence.charAt(i) == toMatch.charAt(j)) {
+            if(j == toMatch.length() - 1) {
+               findIndices(current);
+               break;
+            }
+         }
+         else
+            break;
+      }
+      
+      if(current.getEndIdx() == current.getStartIdx())
+         i--;
+      
+      //If should keep going
+      if(i == current.getEndIdx())
+         findString(toMatch.substring(j), current);
+
+      return foundIndices;
+   }
+   
+   //Traverses the tree from the node passed in, and returns leaf labels
+   private void findIndices(Node current) {
+      if(current instanceof LeafNode) {
+         foundIndices.add(((LeafNode)current).getIndex());
+      }
+      else {
+         if(((InternalNode)current).a != null)
+            findIndices(((InternalNode)current).a);
+         if(((InternalNode)current).t != null)
+            findIndices(((InternalNode)current).t);
+         if(((InternalNode)current).c != null)
+            findIndices(((InternalNode)current).c);
+         if(((InternalNode)current).g != null)
+            findIndices(((InternalNode)current).g);
+         if(((InternalNode)current).dolla != null)
+            findIndices(((InternalNode)current).dolla);
+      }
    }
    
    private void printTree(Node cur) {
@@ -91,7 +162,6 @@ public class SuffixTree {
             graft(traversal, i);
          }
       }
-      printTree(root);
    }
 
    //Returns last traveresed parent node and index of last matched char
@@ -726,6 +796,10 @@ public class SuffixTree {
          this.endIdx = endIdx;
       }
 
+      public int getIndex() {
+         return index;   
+      }
+      
       public int getStartIdx() {
          return startIdx;
       }

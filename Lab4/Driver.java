@@ -2,6 +2,8 @@ import java.util.*;
 import java.io.*;
 
 public class Driver {
+   private static SuffixTree tree;
+   
    public static void main(String[] args) {
       String sequence = "";
       Scanner scan = null;
@@ -20,6 +22,21 @@ public class Driver {
       while(scan.hasNextLine())
          sequence += scan.nextLine();
 
-      SuffixTree tree = new SuffixTree(sequence + "$");
+      tree = new SuffixTree(sequence + "$");
+      
+      findString("l");
+   }
+   
+   public static void findString(String toMatch) {
+      ArrayList indices = tree.findString(toMatch.toLowerCase(), tree.getRoot());
+      
+      if(indices == null)
+         System.out.println("Substring not found");
+      
+      System.out.println(indices);
+   }
+   
+   public void exportToCSV() {
+      
    }
 }
