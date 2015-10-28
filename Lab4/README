@@ -1,0 +1,22 @@
+Lab 4 README
+Team 5
+Tim Mendez, Matt Versaggi, Devan Carlson
+
+In order to run the program, type the following in the terminal:
+   java -jar Lab4.jar
+
+Press the `Find File` button to bring up the file browser. Navigate to the FASTA or
+batch file containing the DNA sequence. Press `Open` to load the file into the software.
+
+Enter in the sub-sequence you wish to search for in the Query DNA box. Press `Go` to generate
+the CSV file containing the indices where matches were found.
+
+A dialog will pop up telling you the CSV file's location (this will be your desktop).
+
+You may change the sub-sequence you are searching for at any time, and re-run the search with
+`Go`.
+
+To compile:
+   javac *.jara
+To run from compilation:
+   java Lab4
