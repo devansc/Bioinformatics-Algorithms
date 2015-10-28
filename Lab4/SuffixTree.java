@@ -19,6 +19,10 @@ public class SuffixTree {
       foundIndices = new ArrayList<Integer>();
    }
 
+   public ArrayList<Integer> findString(String toMatch) {
+      return findString(toMatch, root);
+   }
+
    //Returns null on no match
    public ArrayList<Integer> findString(String toMatch, Node current) {
       switch(toMatch.charAt(0)) {
