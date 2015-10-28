@@ -20,7 +20,7 @@ public class SuffixTree {
    }
 
    //Returns null on no match
-   public ArrayList findString(String toMatch, Node current) {
+   public ArrayList<Integer> findString(String toMatch, Node current) {
       switch(toMatch.charAt(0)) {
          case('a'):
             if(((InternalNode)current).a == null)
@@ -798,7 +798,7 @@ public class SuffixTree {
       }
 
       public int getIndex() {
-         return index;   
+         return index + 1;   
       }
       
       public int getStartIdx() {
