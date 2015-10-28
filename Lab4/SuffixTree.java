@@ -8,7 +8,6 @@ public class SuffixTree {
    public SuffixTree(String dna) {
       root = new InternalNode(-1, -1);
       sequence = dna.toLowerCase();
-      System.out.println(sequence);
       buildTree();
    }
    
@@ -16,10 +15,12 @@ public class SuffixTree {
       return root;
    }
 
-   //Returns null on no match
-   public ArrayList findString(String toMatch, Node current) {      
+   public void reset() {
       foundIndices = new ArrayList<Integer>();
-      
+   }
+
+   //Returns null on no match
+   public ArrayList findString(String toMatch, Node current) {
       switch(toMatch.charAt(0)) {
          case('a'):
             if(((InternalNode)current).a == null)
@@ -57,7 +58,7 @@ public class SuffixTree {
             break;
       }
       
-      if(current.getEndIdx() == current.getStartIdx())
+      if(current.getEndIdx() == current.getStartIdx() || current.getEndIdx() == current.getStartIdx() + 1)
          i--;
       
       //If should keep going

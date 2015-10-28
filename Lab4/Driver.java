@@ -24,7 +24,8 @@ public class Driver {
 
       tree = new SuffixTree(sequence + "$");
       
-      findString("l");
+      tree.reset();
+      findString("TCTAGG");
    }
    
    public static void findString(String toMatch) {
