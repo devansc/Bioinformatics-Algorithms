@@ -1,3 +1,5 @@
+package pkg448Lab4;
+
 import java.awt.Font;
 import java.io.UnsupportedEncodingException;
 import java.io.PrintWriter;
@@ -26,6 +28,7 @@ public class Lab4 extends javax.swing.JFrame {
     private ArrayList<ArrayList<Integer>> indices;
     private int currentIndex;
     private ArrayList<String> sequences;
+    private ArrayList<String> sequenceNames;
     private boolean fileChanged;
     
     /**
@@ -34,6 +37,7 @@ public class Lab4 extends javax.swing.JFrame {
     public Lab4() {
         System.out.println("Creating project");
         fileChanged = false;
+        sequenceNames = new ArrayList<String>();
         initComponents();
         titleText.setFont(new Font("Serif", Font.PLAIN, 28));
     }
@@ -211,6 +215,10 @@ public class Lab4 extends javax.swing.JFrame {
                 sequenceNumber++;
                 sequences.add("");
                 indices.add(new ArrayList<Integer>());
+                if (line.contains(",")) 
+                    sequenceNames.add(line.substring(1, line.indexOf(",")));
+                else
+                    sequenceNames.add(line.substring(1, 15));
             }
             else {
                 sequences.set(sequenceNumber, sequences.get(sequenceNumber) + line);
@@ -226,7 +234,12 @@ public class Lab4 extends javax.swing.JFrame {
     private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
         //String sequence = "";
 
+        int oldSize = 0;
+        if (indices != null)
+            oldSize = indices.size();
         indices = new ArrayList<ArrayList<Integer>>();
+        for (int i = 0; i < oldSize; i++) 
+            indices.add(new ArrayList<Integer>());
         currentIndex = 0;
 
         if (fastaFileText.getText().equals("") || queryText.getText().equals("")) {
@@ -234,35 +247,35 @@ public class Lab4 extends javax.swing.JFrame {
                     "and paste a query text");
             return;
         }
-        System.out.println("Sequences are " + sequences);
 
         if (fileChanged)
             buildTrees();
         fileChanged = false;
+        System.out.println("Sequences are " + sequences);
 
         ArrayList<String> queryStrings = makeQueryStrings(queryText.getText().toLowerCase());
 
         System.out.println("Query strings are " + queryStrings);
-        for (int j = 0; j < trees.size(); j++, currentIndex++) {
+        for (int j = 0, currentIndex = 0; j < trees.size(); j++, currentIndex++) {
             SuffixTree tree = trees.get(j);
-            for (int i = 0; i < queryStrings.size(); i++) {
+            int i;
+            for (i = 0; i < queryStrings.size() && i < indices.size(); i++) {
                 tree.reset();
                 ArrayList<Integer> curIndices = tree.findString(queryStrings.get(i));
                 ArrayList<Integer> alreadySeen = indices.get(currentIndex);
                 alreadySeen.addAll(curIndices);
                 indices.set(currentIndex, alreadySeen);
             }
+            if (i < indices.size())
+                Collections.sort(indices.get(currentIndex));
         }
-        System.out.println("indices are " + indices);
-        return;
+        System.out.println("Indices are " + indices);
 
-        /*
         try {
             buildCSV();
         } catch (Exception e) {
             showPopup("ERROR", "An error occured: " + e.toString());
         }
-        */
     }//GEN-LAST:event_goButtonActionPerformed
 
     private void reverseComplementCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reverseComplementCheckboxActionPerformed
@@ -363,19 +376,44 @@ public class Lab4 extends javax.swing.JFrame {
         }
         return list;
     }
+    
+    private int findMaxPositions(){
+        int max = 0;
+        
+        for (int i = 0; i < indices.size(); i++)
+            if (indices.get(i).size() > max)
+                max = indices.get(i).size();
+        
+        return max;
+    }
 
     private void buildCSV() throws FileNotFoundException, UnsupportedEncodingException{
         PrintWriter writer = new PrintWriter(fastaFile.getPath() + "-Output.csv", "UTF-8");
 
-        writer.println("Position,Total Positions Found");
-        
+        //writer.println("Position,Total Positions Found");
+        for (int i = 0; i < sequenceNames.size(); i++) {
+            writer.printf("Starting pos: %s,Total Found,", sequenceNames.get(i));
+        }
+        writer.println();
         //Collections.sort(indices);
 
-        for(int i = 0; i < indices.size(); i++) {
-            if (i == 0) 
-                writer.println(indices.get(i) + "," + indices.size());
-            else 
-                writer.println(indices.get(i));
+        int maxNumPositions = findMaxPositions();
+        
+        for (int j = 0; j < maxNumPositions; j++) {
+            for (int i = 0; i < indices.size(); i++) {
+                ArrayList<Integer> ind = indices.get(i);
+                System.out.println("Looking at indices: " + ind);
+                if (j == 0 && ind.size() > 0) {          // first row print size
+                    writer.printf("%s,%d,", ind.get(j), ind.size());
+                } else if (j == 0) {                     // size = 0
+                    writer.print(",0,");
+                }else if (ind.size() >= j + 1) {    
+                    writer.printf("%s,,", ind.get(j));
+                } else {
+                    writer.print(",,");
+                }
+            }
+            writer.println("");
         }
 
         writer.close();

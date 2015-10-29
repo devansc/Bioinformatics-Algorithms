@@ -1,3 +1,5 @@
+package pkg448Lab4;
+
 import java.util.*;
 
 public class SuffixTree {
@@ -7,7 +9,7 @@ public class SuffixTree {
    
    public SuffixTree(String dna) {
       root = new InternalNode(-1, -1);
-      sequence = dna.toLowerCase();
+      sequence = dna.toLowerCase() + "$";
       buildTree();
    }
    

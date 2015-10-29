@@ -1,3 +1,5 @@
+package pkg448Lab4;
+
 public interface Node {
    int getStartIdx();
    int getEndIdx();
