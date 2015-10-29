@@ -22,9 +22,24 @@ import java.util.TreeSet;
  */
 public class Lab4 extends javax.swing.JFrame {
 
+    private class Position implements Comparable<Position> {
+        int ndx;
+        boolean isRevComp;
+        public Position(int ndx, boolean isRevComp) {
+            this.ndx = ndx;
+            this.isRevComp = isRevComp;
+        }
+        public int compareTo(Position other) {
+            return ndx - other.ndx;
+        }
+        public String toString() {  // for testing
+            return "" + ndx + "-" + isRevComp;
+        }
+    }
+
     private File fastaFile;
     private ArrayList<SuffixTree> trees;
-    private ArrayList<TreeSet<Integer>> indices;
+    private ArrayList<TreeSet<Position>> indices;
     private int currentIndex;
     private ArrayList<String> sequences;
     private ArrayList<String> sequenceNames;
@@ -35,7 +50,6 @@ public class Lab4 extends javax.swing.JFrame {
      */
     public Lab4() {
         fileChanged = false;
-        sequenceNames = new ArrayList<String>();
         initComponents();
         titleText.setFont(new Font("Serif", Font.PLAIN, 28));
     }
@@ -198,6 +212,7 @@ public class Lab4 extends javax.swing.JFrame {
     private void buildTrees() throws Exception {
         sequences = new ArrayList<String>();
         trees = new ArrayList<SuffixTree>();
+        sequenceNames = new ArrayList<String>();
         Scanner scan = null;
         try {
             scan = new Scanner(fastaFile);
@@ -212,7 +227,7 @@ public class Lab4 extends javax.swing.JFrame {
             if (line.contains(">")) {
                 sequenceNumber++;
                 sequences.add("");
-                indices.add(new TreeSet<Integer>());
+                indices.add(new TreeSet<Position>());
                 if (line.contains(",")) 
                     sequenceNames.add(line.substring(1, line.indexOf(",")));
                 else
@@ -232,15 +247,23 @@ public class Lab4 extends javax.swing.JFrame {
 
     }
 
+    private ArrayList<Position> makePositions(ArrayList<Integer> ind, boolean isRevCompl) {
+        ArrayList<Position> positions = new ArrayList<Position>();
+        for (int i = 0; i < ind.size(); i++) {
+            positions.add(new Position(ind.get(i), isRevCompl));
+        }
+        return positions;
+    }
+
     private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
         //String sequence = "";
 
         int oldSize = 0;
         if (indices != null)
             oldSize = indices.size();
-        indices = new ArrayList<TreeSet<Integer>>();
+        indices = new ArrayList<TreeSet<Position>>();
         for (int i = 0; i < oldSize; i++) 
-            indices.add(new TreeSet<Integer>());
+            indices.add(new TreeSet<Position>());
         currentIndex = 0;
 
         if (fastaFileText.getText().equals("") || queryText.getText().equals("")) {
@@ -264,8 +287,10 @@ public class Lab4 extends javax.swing.JFrame {
             for (int i = 0; i < queryStrings.size() && currentIndex < indices.size(); i++) {
                 tree.reset();
                 ArrayList<Integer> curIndices = tree.findString(queryStrings.get(i));
-                TreeSet<Integer> alreadySeen = indices.get(currentIndex);
-                alreadySeen.addAll(curIndices);
+                TreeSet<Position> alreadySeen = indices.get(currentIndex);
+                boolean isRevCompl = i >= queryStrings.size() / 2 && reverseComplementCheckbox.isSelected() ? true : false;
+                ArrayList<Position> curPositions = makePositions(curIndices, isRevCompl);
+                alreadySeen.addAll(curPositions);
                 indices.set(currentIndex, alreadySeen);
             }
             //Collections.sort(indices.get(currentIndex));
@@ -393,30 +418,28 @@ public class Lab4 extends javax.swing.JFrame {
 
         //writer.println("Position,Total Positions Found");
         for (int i = 0; i < sequenceNames.size(); i++) {
-            writer.printf("Starting pos: %s,Total Found,", sequenceNames.get(i));
+            writer.printf("Starting pos: %s,Reverse Complement,Total Found,", sequenceNames.get(i));
         }
         writer.println();
         //Collections.sort(indices);
 
         int maxNumPositions = findMaxPositions();
 
-        System.out.println("Building csv maxNumPositions = " + maxNumPositions);
         
         for (int j = 0; j < maxNumPositions; j++) {
             int curInd = 0;
-            System.out.println("j = " + j);
-            for (TreeSet<Integer> ind : indices) {
-                System.out.println("indices are " + indices);
-                System.out.println("ind.size() " + ind.size());
+            for (TreeSet<Position> ind : indices) {
                 if (j == 0 && ind.size() > 0) {          // first row print size
                     int size = ind.size();
-                    writer.printf("%s,%d,", ind.pollFirst(), size);
+                    Position p = ind.pollFirst();
+                    writer.printf("%s,%s,%d,", p.ndx, p.isRevComp ? "Yes" : "No",  size);
                 } else if (j == 0) {                     // size = 0
-                    writer.print(",0,");
+                    writer.print(",,0,");
                 }else if (ind.size() > 0) {    
-                    writer.printf("%s,,", ind.pollFirst());
+                    Position p = ind.pollFirst();
+                    writer.printf("%s,%s,,", p.ndx, p.isRevComp ? "Yes" : "No");
                 } else {
-                    writer.print(",,");
+                    writer.print(",,,");
                 }
                 curInd++;
             }
