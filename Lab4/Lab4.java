@@ -1,5 +1,3 @@
-package pkg448Lab4;
-
 import java.awt.Font;
 import java.io.UnsupportedEncodingException;
 import java.io.PrintWriter;
@@ -16,6 +14,7 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.Scanner;
+import java.util.TreeSet;
 
 /**
  *
@@ -25,7 +24,7 @@ public class Lab4 extends javax.swing.JFrame {
 
     private File fastaFile;
     private ArrayList<SuffixTree> trees;
-    private ArrayList<ArrayList<Integer>> indices;
+    private ArrayList<TreeSet<Integer>> indices;
     private int currentIndex;
     private ArrayList<String> sequences;
     private ArrayList<String> sequenceNames;
@@ -35,7 +34,6 @@ public class Lab4 extends javax.swing.JFrame {
      * Creates new form Lab4
      */
     public Lab4() {
-        System.out.println("Creating project");
         fileChanged = false;
         sequenceNames = new ArrayList<String>();
         initComponents();
@@ -197,7 +195,7 @@ public class Lab4 extends javax.swing.JFrame {
         queryText.setText(getClipboardContents());
     }//GEN-LAST:event_pasteButtonActionPerformed
 
-    private void buildTrees() {
+    private void buildTrees() throws Exception {
         sequences = new ArrayList<String>();
         trees = new ArrayList<SuffixTree>();
         Scanner scan = null;
@@ -214,7 +212,7 @@ public class Lab4 extends javax.swing.JFrame {
             if (line.contains(">")) {
                 sequenceNumber++;
                 sequences.add("");
-                indices.add(new ArrayList<Integer>());
+                indices.add(new TreeSet<Integer>());
                 if (line.contains(",")) 
                     sequenceNames.add(line.substring(1, line.indexOf(",")));
                 else
@@ -228,6 +226,9 @@ public class Lab4 extends javax.swing.JFrame {
         for (int i = 0; i < sequences.size(); i++) {
             trees.add(new SuffixTree(sequences.get(i)));
         }
+        if (sequences.size() == 0) {
+            throw new Exception("FASTA file not in correct format");
+        }
 
     }
 
@@ -237,9 +238,9 @@ public class Lab4 extends javax.swing.JFrame {
         int oldSize = 0;
         if (indices != null)
             oldSize = indices.size();
-        indices = new ArrayList<ArrayList<Integer>>();
+        indices = new ArrayList<TreeSet<Integer>>();
         for (int i = 0; i < oldSize; i++) 
-            indices.add(new ArrayList<Integer>());
+            indices.add(new TreeSet<Integer>());
         currentIndex = 0;
 
         if (fastaFileText.getText().equals("") || queryText.getText().equals("")) {
@@ -247,34 +248,34 @@ public class Lab4 extends javax.swing.JFrame {
                     "and paste a query text");
             return;
         }
-
-        if (fileChanged)
-            buildTrees();
-        fileChanged = false;
-        System.out.println("Sequences are " + sequences);
+        
+        try {
+            if (fileChanged)
+                buildTrees();
+            fileChanged = false;
+        } catch (Exception e) {
+            showPopup("ERROR", "FASTA file not in correct format: " + e);
+        }
 
         ArrayList<String> queryStrings = makeQueryStrings(queryText.getText().toLowerCase());
 
-        System.out.println("Query strings are " + queryStrings);
         for (int j = 0, currentIndex = 0; j < trees.size(); j++, currentIndex++) {
             SuffixTree tree = trees.get(j);
-            int i;
-            for (i = 0; i < queryStrings.size() && i < indices.size(); i++) {
+            for (int i = 0; i < queryStrings.size() && currentIndex < indices.size(); i++) {
                 tree.reset();
                 ArrayList<Integer> curIndices = tree.findString(queryStrings.get(i));
-                ArrayList<Integer> alreadySeen = indices.get(currentIndex);
+                TreeSet<Integer> alreadySeen = indices.get(currentIndex);
                 alreadySeen.addAll(curIndices);
                 indices.set(currentIndex, alreadySeen);
             }
-            if (i < indices.size())
-                Collections.sort(indices.get(currentIndex));
+            //Collections.sort(indices.get(currentIndex));
         }
         System.out.println("Indices are " + indices);
 
         try {
             buildCSV();
         } catch (Exception e) {
-            showPopup("ERROR", "An error occured: " + e.toString());
+            showPopup("ERROR", "An error occured building csv: " + e.toString());
         }
     }//GEN-LAST:event_goButtonActionPerformed
 
@@ -398,20 +399,26 @@ public class Lab4 extends javax.swing.JFrame {
         //Collections.sort(indices);
 
         int maxNumPositions = findMaxPositions();
+
+        System.out.println("Building csv maxNumPositions = " + maxNumPositions);
         
         for (int j = 0; j < maxNumPositions; j++) {
-            for (int i = 0; i < indices.size(); i++) {
-                ArrayList<Integer> ind = indices.get(i);
-                System.out.println("Looking at indices: " + ind);
+            int curInd = 0;
+            System.out.println("j = " + j);
+            for (TreeSet<Integer> ind : indices) {
+                System.out.println("indices are " + indices);
+                System.out.println("ind.size() " + ind.size());
                 if (j == 0 && ind.size() > 0) {          // first row print size
-                    writer.printf("%s,%d,", ind.get(j), ind.size());
+                    int size = ind.size();
+                    writer.printf("%s,%d,", ind.pollFirst(), size);
                 } else if (j == 0) {                     // size = 0
                     writer.print(",0,");
-                }else if (ind.size() >= j + 1) {    
-                    writer.printf("%s,,", ind.get(j));
+                }else if (ind.size() > 0) {    
+                    writer.printf("%s,,", ind.pollFirst());
                 } else {
                     writer.print(",,");
                 }
+                curInd++;
             }
             writer.println("");
         }

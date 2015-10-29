@@ -1,5 +1,3 @@
-package pkg448Lab4;
-
 import java.util.*;
 
 public class SuffixTree {
