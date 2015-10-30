@@ -7,7 +7,7 @@ public class SuffixTree {
    
    public SuffixTree(String dna) {
       root = new InternalNode(-1, -1);
-      sequence = dna.toLowerCase();
+      sequence = dna.toLowerCase() + "$";
       buildTree();
    }
    
@@ -17,6 +17,10 @@ public class SuffixTree {
 
    public void reset() {
       foundIndices = new ArrayList<Integer>();
+   }
+
+   public ArrayList<Integer> findString(String toMatch) {
+      return findString(toMatch, root);
    }
 
    //Returns null on no match

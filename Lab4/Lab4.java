@@ -12,7 +12,9 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.util.Collections;
 import java.util.Scanner;
+import java.util.TreeSet;
 
 /**
  *
@@ -20,14 +22,34 @@ import java.util.Scanner;
  */
 public class Lab4 extends javax.swing.JFrame {
 
+    private class Position implements Comparable<Position> {
+        int ndx;
+        boolean isRevComp;
+        public Position(int ndx, boolean isRevComp) {
+            this.ndx = ndx;
+            this.isRevComp = isRevComp;
+        }
+        public int compareTo(Position other) {
+            return ndx - other.ndx;
+        }
+        public String toString() {  // for testing
+            return "" + ndx + "-" + isRevComp;
+        }
+    }
+
     private File fastaFile;
-    private SuffixTree tree;
-    private ArrayList<Integer> indices;
+    private ArrayList<SuffixTree> trees;
+    private ArrayList<TreeSet<Position>> indices;
+    private int currentIndex;
+    private ArrayList<String> sequences;
+    private ArrayList<String> sequenceNames;
+    private boolean fileChanged;
     
     /**
      * Creates new form Lab4
      */
     public Lab4() {
+        fileChanged = false;
         initComponents();
         titleText.setFont(new Font("Serif", Font.PLAIN, 28));
     }
@@ -50,6 +72,7 @@ public class Lab4 extends javax.swing.JFrame {
         pasteButton = new javax.swing.JButton();
         goButton = new javax.swing.JButton();
         titleText = new javax.swing.JLabel();
+        reverseComplementCheckbox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -84,12 +107,19 @@ public class Lab4 extends javax.swing.JFrame {
 
         titleText.setText("Lab 4");
 
+        reverseComplementCheckbox.setText("Reverse Complement Search");
+        reverseComplementCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reverseComplementCheckboxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(69, 352, Short.MAX_VALUE)
                 .addComponent(goButton)
                 .addGap(177, 177, 177))
             .addGroup(layout.createSequentialGroup()
@@ -108,7 +138,8 @@ public class Lab4 extends javax.swing.JFrame {
                                     .addComponent(jLabel2)
                                     .addComponent(pasteButton))
                                 .addGap(22, 22, 22)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 427, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 427, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(reverseComplementCheckbox)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(75, 75, 75)
                         .addComponent(titleText)))
@@ -134,7 +165,9 @@ public class Lab4 extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(goButton)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(goButton)
+                            .addComponent(reverseComplementCheckbox))
                         .addGap(12, 12, 12))))
         );
 
@@ -168,6 +201,7 @@ public class Lab4 extends javax.swing.JFrame {
             String filename = file + "";
             this.fastaFile = file;
             fastaFileText.setText(filename);
+            fileChanged = true;
         }
     }//GEN-LAST:event_fastaFileButtonActionPerformed
 
@@ -175,48 +209,104 @@ public class Lab4 extends javax.swing.JFrame {
         queryText.setText(getClipboardContents());
     }//GEN-LAST:event_pasteButtonActionPerformed
 
-    private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
-        String sequence = "";
+    private void buildTrees() throws Exception {
+        sequences = new ArrayList<String>();
+        trees = new ArrayList<SuffixTree>();
+        sequenceNames = new ArrayList<String>();
         Scanner scan = null;
+        try {
+            scan = new Scanner(fastaFile);
+        }
+        catch(FileNotFoundException e) {
+            showPopup("ERROR", "File not found");
+        }
 
-        indices = new ArrayList<Integer>();
+        int sequenceNumber = -1;
+        while(scan.hasNextLine()) {
+            String line = scan.nextLine();
+            if (line.contains(">")) {
+                sequenceNumber++;
+                sequences.add("");
+                indices.add(new TreeSet<Position>());
+                if (line.contains(",")) 
+                    sequenceNames.add(line.substring(1, line.indexOf(",")));
+                else
+                    sequenceNames.add(line.substring(1, 15));
+            }
+            else {
+                sequences.set(sequenceNumber, sequences.get(sequenceNumber) + line);
+            }
+        }
+
+        for (int i = 0; i < sequences.size(); i++) {
+            trees.add(new SuffixTree(sequences.get(i)));
+        }
+        if (sequences.size() == 0) {
+            throw new Exception("FASTA file not in correct format");
+        }
+
+    }
+
+    private ArrayList<Position> makePositions(ArrayList<Integer> ind, boolean isRevCompl) {
+        ArrayList<Position> positions = new ArrayList<Position>();
+        for (int i = 0; i < ind.size(); i++) {
+            positions.add(new Position(ind.get(i), isRevCompl));
+        }
+        return positions;
+    }
+
+    private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
+        //String sequence = "";
+
+        int oldSize = 0;
+        if (indices != null)
+            oldSize = indices.size();
+        indices = new ArrayList<TreeSet<Position>>();
+        for (int i = 0; i < oldSize; i++) 
+            indices.add(new TreeSet<Position>());
+        currentIndex = 0;
 
         if (fastaFileText.getText().equals("") || queryText.getText().equals("")) {
             showPopup("Error", "You need to choose a FASTA file for the DNA sequence " + 
                     "and paste a query text");
             return;
         }
-
+        
         try {
-            scan = new Scanner(fastaFile);
+            if (fileChanged)
+                buildTrees();
+            fileChanged = false;
+        } catch (Exception e) {
+            showPopup("ERROR", "FASTA file not in correct format: " + e);
         }
-        catch(FileNotFoundException e) {
-            System.out.println(e);
-        }
-
-        //Eating first line of FASTA file
-        scan.nextLine();
-
-        //Constructing DNA sequence String from file
-        while(scan.hasNextLine())
-            sequence += scan.nextLine();
-
-        tree = new SuffixTree(sequence + "$");
 
         ArrayList<String> queryStrings = makeQueryStrings(queryText.getText().toLowerCase());
 
-        System.out.println("Query strings are " + queryStrings);
-        for (int i = 0; i < queryStrings.size(); i++) {
-            tree.reset();
-            findString(queryStrings.get(i));
+        for (int j = 0, currentIndex = 0; j < trees.size(); j++, currentIndex++) {
+            SuffixTree tree = trees.get(j);
+            for (int i = 0; i < queryStrings.size() && currentIndex < indices.size(); i++) {
+                tree.reset();
+                ArrayList<Integer> curIndices = tree.findString(queryStrings.get(i));
+                TreeSet<Position> alreadySeen = indices.get(currentIndex);
+                boolean isRevCompl = i >= queryStrings.size() / 2 && reverseComplementCheckbox.isSelected() ? true : false;
+                ArrayList<Position> curPositions = makePositions(curIndices, isRevCompl);
+                alreadySeen.addAll(curPositions);
+                indices.set(currentIndex, alreadySeen);
+            }
+            //Collections.sort(indices.get(currentIndex));
         }
+        System.out.println("Indices are " + indices);
 
         try {
-            buildCSV(System.getProperty("user.home") + "/Desktop/Lab4");
+            buildCSV();
         } catch (Exception e) {
-            showPopup("Error", "An error occured: " + e.toString());
+            showPopup("ERROR", "An error occured building csv: " + e.toString());
         }
     }//GEN-LAST:event_goButtonActionPerformed
+
+    private void reverseComplementCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reverseComplementCheckboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_reverseComplementCheckboxActionPerformed
 
     public ArrayList<String> makeQueryStrings(String query) {
         ArrayList<String> queryStrings = new ArrayList<String>();
@@ -248,7 +338,40 @@ public class Lab4 extends javax.swing.JFrame {
             }
         }
 
+        return reverseComplement(queryStrings);
+    }
+    
+    public ArrayList<String> reverseComplement(ArrayList<String> queryStrings) {
+        if (reverseComplementCheckbox.isSelected()) {
+            int origSize = queryStrings.size();
+            for (int i = 0; i < origSize; i++) {
+                queryStrings.add(reverseComplement(queryStrings.get(i), ""));
+            }
+        }
         return queryStrings;
+    }
+    
+    public String reverseComplement(String orig, String rev) {
+        if (orig.length() == 0) {
+            return rev;
+        }
+        char first = orig.charAt(0);
+        String comp = "";
+        switch (first) {
+            case 'a':
+                comp = "t";
+                break;
+            case 't':
+                comp = "a";
+                break;
+            case 'g':
+                comp = "c";
+                break;
+            case 'c':
+                comp = "g";
+                break;
+        }
+        return reverseComplement(orig.substring(1), rev + comp);
     }
 
     public ArrayList<String> addTwo(char letter1, char letter2, ArrayList<String> list) {
@@ -279,35 +402,53 @@ public class Lab4 extends javax.swing.JFrame {
         }
         return list;
     }
-
-
-
-    public void findString(String toMatch) {
-        ArrayList<Integer> curIndices = tree.findString(toMatch, tree.getRoot());
-
-        if(curIndices == null)
-            System.out.println("Substring not found");
-        else
-            System.out.println("Result: " + curIndices);
-
-        indices.addAll(curIndices);
+    
+    private int findMaxPositions(){
+        int max = 0;
+        
+        for (int i = 0; i < indices.size(); i++)
+            if (indices.get(i).size() > max)
+                max = indices.get(i).size();
+        
+        return max;
     }
 
-    private void buildCSV(String filename) throws FileNotFoundException, UnsupportedEncodingException{
-        PrintWriter writer = new PrintWriter(filename + "-Output.csv", "UTF-8");
+    private void buildCSV() throws FileNotFoundException, UnsupportedEncodingException{
+        PrintWriter writer = new PrintWriter(fastaFile.getPath() + "-Output.csv", "UTF-8");
 
-        writer.println("Position,Total Positions Found");
+        //writer.println("Position,Total Positions Found");
+        for (int i = 0; i < sequenceNames.size(); i++) {
+            writer.printf("Starting pos: %s,Reverse Complement,Total Found,", sequenceNames.get(i));
+        }
+        writer.println();
+        //Collections.sort(indices);
 
-        for(int i = 0; i < indices.size(); i++) {
-            if (i == 0) 
-                writer.println(indices.get(i) + "," + indices.size());
-            else 
-                writer.println(indices.get(i));
+        int maxNumPositions = findMaxPositions();
+
+        
+        for (int j = 0; j < maxNumPositions; j++) {
+            int curInd = 0;
+            for (TreeSet<Position> ind : indices) {
+                if (j == 0 && ind.size() > 0) {          // first row print size
+                    int size = ind.size();
+                    Position p = ind.pollFirst();
+                    writer.printf("%s,%s,%d,", p.ndx, p.isRevComp ? "Yes" : "No",  size);
+                } else if (j == 0) {                     // size = 0
+                    writer.print(",,0,");
+                }else if (ind.size() > 0) {    
+                    Position p = ind.pollFirst();
+                    writer.printf("%s,%s,,", p.ndx, p.isRevComp ? "Yes" : "No");
+                } else {
+                    writer.print(",,,");
+                }
+                curInd++;
+            }
+            writer.println("");
         }
 
         writer.close();
 
-        showPopup("Done", "CSV file " + filename + "-Output.csv" + " created");
+        showPopup("Done", "CSV file " + fastaFile.getPath() + "-Output.csv" + " created");
     }
 
     
@@ -361,6 +502,7 @@ public class Lab4 extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton pasteButton;
     private javax.swing.JTextArea queryText;
+    private javax.swing.JCheckBox reverseComplementCheckbox;
     private javax.swing.JLabel titleText;
     // End of variables declaration//GEN-END:variables
 }
