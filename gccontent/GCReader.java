@@ -13,21 +13,28 @@ public class GCReader {
     int windowWidth;
     int stepSize;
 
-    ArrayList<Double> gcCounts = new ArrayList<Double>();
-    ArrayList<Integer> nCounts = new ArrayList<Integer>();
-    ArrayList<Integer> totalCounts = new ArrayList<Integer>();
-    ArrayList<Double> gcPercents = new ArrayList<Double>();
+    double[] gcCounts;
+    int[] totalCounts;
+    int nCount;
+    ArrayList<Double> gcPercents;
 
     Reader fileReader;
 
     public String ReadGCContent(String content, int windowWidth, int stepSize) throws FileNotFoundException, IOException {
         fileReader = new StringReader(content);
         int chr;
-        
+
         this.windowWidth = windowWidth;
         this.stepSize = stepSize;
         
         String basePairs = GetBasePairs(fileReader);
+
+        int lenBP = basePairs.length();
+        int lenLists = (lenBP / stepSize) + 1;
+        gcCounts = new double[lenLists];
+        totalCounts = new int[lenLists];
+        gcPercents = new ArrayList<Double>();
+
         calculate(basePairs);
         
         buildCSV(System.getProperty("user.home") + "/Desktop/Pasted");
@@ -51,6 +58,13 @@ public class GCReader {
         
 
         String basePairs = GetBasePairs(fileReader);
+
+        int lenBP = basePairs.length();
+        int lenLists = (lenBP / stepSize) + 1;
+        gcCounts = new double[lenLists];
+        totalCounts = new int[lenLists];
+        gcPercents = new ArrayList<Double>();
+
         calculate(basePairs);
         buildCSV(file + "");
     }
@@ -78,20 +92,17 @@ public class GCReader {
 
     private void incGC(int maxList, int minList) {
         for (int i = minList; i <= maxList; i++) {
-            gcCounts.set(i, gcCounts.get(i) + 1);
-            totalCounts.set(i, totalCounts.get(i) + 1);
+            gcCounts[i]++;
+            totalCounts[i]++;
+            //gcCounts.set(i, gcCounts.get(i) + 1);
+            //totalCounts.set(i, totalCounts.get(i) + 1);
         }
     }
 
     private void incTotal(int maxList, int minList) {
         for (int i = minList; i <= maxList; i++) {
-            totalCounts.set(i, totalCounts.get(i) + 1);
-        }
-    }
-
-    private void incN(int maxList, int minList) {
-        for (int i = minList; i <= maxList; i++) {
-            nCounts.set(i, nCounts.get(i) + 1);
+            totalCounts[i]++;
+            //totalCounts.set(i, totalCounts.get(i) + 1);
         }
     }
 
@@ -99,12 +110,8 @@ public class GCReader {
         int listMax = -1, listMin = 0;
 
         for (int chr = 0; chr < basePairs.length(); chr++) {
-            System.out.println("looking at " + basePairs.charAt(chr));
             if (chr % stepSize == 0) {
                 listMax++;
-                totalCounts.add(0);
-                gcCounts.add((double)0);
-                nCounts.add(0);
             }
             if (chr - windowWidth >= 0 && (chr - windowWidth) % stepSize == 0) 
                 listMin++;
@@ -117,7 +124,7 @@ public class GCReader {
                     incTotal(listMax, listMin);
                     break;
                 case 'N':
-                    incN(listMax, listMin);
+                    nCount++;
                     break;
                 default:
                     break;
@@ -127,23 +134,17 @@ public class GCReader {
     }
 
     private double calculateGCContent(int finalPos) {
-        for (int i = 0; i < gcCounts.size(); i++) {
-            double gcCount = (double) gcCounts.get(i);
-            double gcContent = Math.round(gcCount / (double) totalCounts.get(i) * 10000);
+        for (int i = 0; i < gcCounts.length; i++) {
+            double gcCount = gcCounts[i];
+            double gcContent = Math.round(gcCount / (double) totalCounts[i] * 10000);
             gcContent = gcContent / 100;
-            gcPercents.add(gcContent);
+            if (totalCounts[i] > 0)
+                gcPercents.add(gcContent);
         }
         return 0;
     }
 
     
-    private int calculateTotalNCount() {
-        int totalNCount = 0;
-        for (int i = 0; i < nCounts.size(); i++)
-            totalNCount += nCounts.get(i);
-        return totalNCount;
-    }
-
 
     //Builds a CSV file contianing the window positions and GC Counts for the input specified
     private void buildCSV(String filename) throws FileNotFoundException, UnsupportedEncodingException{
@@ -153,7 +154,7 @@ public class GCReader {
 
         for(int i = 0; i < gcPercents.size(); i++) {
             if (i == 0) 
-                writer.println((i * stepSize + 1) + "," + gcPercents.get(i) + "," + calculateTotalNCount());
+                writer.println((i * stepSize + 1) + "," + gcPercents.get(i) + "," + nCount);
             else 
                 writer.println((i * stepSize + 1) + "," + gcPercents.get(i));
         }
@@ -170,7 +171,7 @@ public class GCReader {
         for(int i = 0; i < gcPercents.size(); i++) {
             String line = (i * stepSize + 1) + "," + gcPercents.get(i) + "\n";
             if (i == 0) 
-                line = (i * stepSize + 1) + "," + gcPercents.get(i) + "," + calculateTotalNCount() + "\n";
+                line = (i * stepSize + 1) + "," + gcPercents.get(i) + "," + nCount + "\n";
             writer.append(line);
         }
 
