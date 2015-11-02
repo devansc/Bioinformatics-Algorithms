@@ -76,34 +76,54 @@ public class GCReader {
      * step   2
      */
 
-    private void calculate(String basePairs) throws IOException {
-        int chr, startingPos = 0, curPos = 0, windowPos = 0;
-
-
-        for ( ; startingPos < basePairs.length(); windowPos++) {
-            totalCounts.add((int)0);
-            gcCounts.add((double)0);
-            nCounts.add((int)0);
-            for ( ; curPos < startingPos + windowWidth && curPos < basePairs.length() ; curPos++ ){
-                switch(basePairs.charAt(curPos)) {
-                    case 'G': case 'C':
-                        gcCounts.set(windowPos, gcCounts.get(windowPos) + 1);
-                        totalCounts.set(windowPos, totalCounts.get(windowPos) + 1);
-                        break;
-                    case 'A': case 'T':
-                        totalCounts.set(windowPos, totalCounts.get(windowPos) + 1);
-                        break;
-                    case 'N':
-                        nCounts.set(windowPos, nCounts.get(windowPos) + 1);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            startingPos += stepSize;
-            curPos -= windowWidth - stepSize;
+    private void incGC(int maxList, int minList) {
+        for (int i = minList; i <= maxList; i++) {
+            gcCounts.set(i, gcCounts.get(i) + 1);
+            totalCounts.set(i, totalCounts.get(i) + 1);
         }
-        calculateGCContent(curPos);
+    }
+
+    private void incTotal(int maxList, int minList) {
+        for (int i = minList; i <= maxList; i++) {
+            totalCounts.set(i, totalCounts.get(i) + 1);
+        }
+    }
+
+    private void incN(int maxList, int minList) {
+        for (int i = minList; i <= maxList; i++) {
+            nCounts.set(i, nCounts.get(i) + 1);
+        }
+    }
+
+    private void calculate(String basePairs) {
+        int listMax = -1, listMin = 0;
+
+        for (int chr = 0; chr < basePairs.length(); chr++) {
+            System.out.println("looking at " + basePairs.charAt(chr));
+            if (chr % stepSize == 0) {
+                listMax++;
+                totalCounts.add(0);
+                gcCounts.add((double)0);
+                nCounts.add(0);
+            }
+            if (chr - windowWidth >= 0 && (chr - windowWidth) % stepSize == 0) 
+                listMin++;
+
+            switch(basePairs.charAt(chr)) {
+                case 'G': case 'C':
+                    incGC(listMax, listMin);
+                    break;
+                case 'A': case 'T':
+                    incTotal(listMax, listMin);
+                    break;
+                case 'N':
+                    incN(listMax, listMin);
+                    break;
+                default:
+                    break;
+            }
+        }
+        calculateGCContent(basePairs.length());
     }
 
     private double calculateGCContent(int finalPos) {
