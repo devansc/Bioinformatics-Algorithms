@@ -148,7 +148,7 @@ public class GCReader {
 
     //Builds a CSV file contianing the window positions and GC Counts for the input specified
     private void buildCSV(String filename) throws FileNotFoundException, UnsupportedEncodingException{
-        PrintWriter writer = new PrintWriter(filename + "-Output.csv", "UTF-8");
+        PrintWriter writer = new PrintWriter(filename + "Win-" + windowWidth + ",Step-" + stepSize + "-Output.csv", "UTF-8");
 
         writer.println("Starting Position of the Window,%GC,TotalNCount");
 
