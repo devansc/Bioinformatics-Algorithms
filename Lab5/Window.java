@@ -26,10 +26,19 @@ public class Window {
    }
    
    public double obsOverExp() {
+      if(numC == 0 || numG == 0)
+         return 0;
       return (numCpG * 200) / (numC * numG);
    }
    
    public double gcPercent() {
       return ((numC + numG) / 200) * 100;
+   }
+   
+   public void printWindow() {
+      System.out.println("Start Position: " + start);
+      System.out.println("End Position: " + end);
+      System.out.println("Obs/Exp: " + obsOverExp());
+      System.out.println("%GC: " + gcPercent());
    }
 }
