@@ -1,0 +1,400 @@
+import java.util.ArrayList;
+
+public class SuffixTree {
+    private InternalNode root;
+    private char[] sequence;
+    private InternalNode activeNode;
+    private int activeEdge;
+    private int activeLength;
+    private int end;
+    private int numLeafNodes;
+    private InternalNode lastInsertedNode;
+
+    public enum Nodes {
+        A(0), T(1), C(2), G(3), DOLLAR(4);
+
+        private static final int numNodes = 5;
+        private final int ndx;
+
+        Nodes(int num) {
+            this.ndx = num;
+        }
+    }
+
+    public SuffixTree (String dna) {
+        root = new InternalNode(-1, -1);
+        root.suffixLink = root;
+        sequence = (dna.toLowerCase() + "$").toCharArray();
+        activeNode = root;
+        activeEdge = -1;
+        activeLength = 0;
+        end = -1;
+        numLeafNodes = 0;
+        buildTree();
+    }
+
+
+    public ArrayList<Integer> findString(String pattern) {
+        return traceString(pattern.toLowerCase().toCharArray(), root, 0, 0);
+    }
+
+    public ArrayList<Integer> traceString(char[] pattern, Node curNode, int curPosPattern, int traversedOnNode) {
+        //System.out.println("Starting traceString " + curPosPattern);
+        if (curPosPattern >= pattern.length - 1) { // means we found at least a match
+            System.out.println("String found, need to search for leaves");
+            return findAllLeaves(curNode, traversedOnNode);
+        }
+
+        if (curNode == null) {  // there is no path 
+            System.out.println("not found3");
+            return new ArrayList<Integer>();
+        }
+
+        char curChar = pattern[curPosPattern];
+        int startIdx = curNode.getStartIdx();
+        if (startIdx == -1) { // at root
+            return traceString(pattern, curNode.getChild(pattern[0]), 0, 0);
+        }
+        //System.out.println("Starting while loop " + curPosPattern + " " + traversedOnNode);
+        //System.out.println("length active node " + curNode.length());
+        while (curPosPattern < pattern.length && traversedOnNode <= curNode.length() && 
+                startIdx + traversedOnNode < sequence.length && pattern[curPosPattern] == sequence[startIdx + traversedOnNode]) {
+            //System.out.println("passed " + pattern[curPosPattern] + " == " + sequence[startIdx + traversedOnNode]);
+            curPosPattern++; 
+            traversedOnNode++;
+        }
+
+        if (curPosPattern >= pattern.length) {
+            System.out.println("String found, need to search for leaves");
+            return findAllLeaves(curNode, traversedOnNode);
+        }
+
+        if (traversedOnNode >= curNode.length() && startIdx + traversedOnNode < sequence.length) {
+            //System.out.println("1");
+            //System.out.println("moving to child " + pattern[curPosPattern]);
+            if (curNode.getChild(pattern[curPosPattern]) == null) {
+                System.out.println("String not found");
+                return new ArrayList<Integer>();
+            }
+            return traceString(pattern, curNode.getChild(pattern[curPosPattern]), curPosPattern++, 0);
+        } else if (startIdx + traversedOnNode >= sequence.length) {
+            System.out.println("not found1 ");
+            return new ArrayList<Integer>();    // not found
+        } else if (pattern[curPosPattern] != sequence[startIdx + traversedOnNode]){
+            //System.out.println(pattern[curPosPattern] + " != " + sequence[startIdx + traversedOnNode]);
+            System.out.println("not found2");
+            return new ArrayList<Integer>();    // not found
+        } else {
+            System.out.println("String found, need to search for leaves");
+            return findAllLeaves(curNode, traversedOnNode);
+        }
+    }
+
+    public ArrayList<Integer> findAllLeaves(Node curNode, int traversedOnNode) {
+        return new ArrayList<Integer>();
+    }
+    
+    public void buildTree() {
+        int remaining = 0;
+        int seqLen = sequence.length;
+        Node curNode = null;
+        for (int i = 0; i < seqLen; i++) {
+            printTree(root, 0);
+            remaining++;
+            end++;
+            System.out.println("-------------- working on char " + sequence[i] + ": remaining is " + remaining + "-------------------------------");
+
+            while (remaining > 0) {
+                char insertChar = sequence[i];
+                System.out.println("** remaining = " + remaining + ", insertchar is " + insertChar);
+                System.out.println("activeLength " + activeLength + " activeEdge " + activeEdge + " activeNode starting at " + activeNode.getStartIdx());
+                if (activeEdge >= 0 && activeEdge < seqLen) {
+                    curNode = activeNode.getChild(sequence[activeEdge]);
+                }
+
+                if (curNode != null)
+                    System.out.println("activeLength " + activeLength + " curNode.length " + curNode.length());
+                else
+                    System.out.println("WTF");
+                if (activeLength == 0 && addLeaf(activeNode, i, insertChar))  // tries to add a leaf node 
+                    remaining--;
+                else if (curNode != null && activeLength >= curNode.length() && curNode instanceof InternalNode) { // got to an internal node
+                    System.out.println("Got to a node " + sequence[activeEdge]);
+                    activeNode = (InternalNode) activeNode.getChild(sequence[activeEdge]);
+                    Node newNode = activeNode.getChild(insertChar);
+                    if (newNode != null) {
+                        activeEdge = newNode.getStartIdx();
+                        activeLength = 1;
+                    } else {
+                        System.out.println("ADDING LEAF");
+                        addLeaf(activeNode, i, insertChar);
+                        activeNode = activeNode.suffixLink;
+                    }
+                    break;
+                } else if (sequence[activeEdge + activeLength] == insertChar) {
+					//System.out.printf("check passed %c == %c\n", sequence[activeEdge + activeLength], insertChar);
+					activeLength++;
+					break;
+                } else {
+                    //System.out.println("Inserting node, activeLength = " + activeLength + ", activeEdge = " + activeEdge);
+                    
+                    remaining = addInternalNode(insertChar, i, remaining);
+                }
+            }
+            lastInsertedNode = null;
+        }
+    }
+
+    public int addInternalNode(char insertChar, int insertCharPos, int remaining) {
+        InternalNode secondLastInserted = lastInsertedNode;
+        lastInsertedNode = insertNode(insertChar, insertCharPos);
+        //System.out.print("Following suffix link from " + activeNode.getStartIdx());
+
+        if (activeNode.equals(root)) {
+            //System.out.println("INCREMENTING ACTIVELENGTH AND ACTIVEEDGE");
+            activeLength--;
+            activeEdge++;
+        }
+        activeNode = activeNode.suffixLink;
+        //System.out.println(" to " + activeNode.getStartIdx());
+        lastInsertedNode.suffixLink = root;
+        if (secondLastInserted != null) {                 // change secondLastInserted suffix link to the one we just created
+            secondLastInserted.suffixLink = lastInsertedNode;
+        }
+        return remaining - 1;
+    }
+
+    /* Inserts an internal child node on the current activeNode */
+    public InternalNode insertNode(char insertChar, int startIdx) {
+        int oldLeafStart = activeEdge + activeLength;    // new start to the old leaf
+        char oldChar = sequence[activeEdge];             // gets the letter that the old child node was on
+        Node oldLeaf = activeNode.getChild(oldChar);     // old leaf or internal node on active node
+        System.out.print("Changed oldLeaf startIdx from " + oldLeaf.getStartIdx());
+        oldLeaf.setStartIdx(oldLeafStart);                        //                                    <----------- crashes
+        System.out.println(" to " + oldLeaf.getStartIdx() + ", end idx is " + oldLeaf.getEndIdx());
+        //System.out.println("oldChar = " + oldChar + ", oldLeaf = " + (oldLeaf == null ? oldLeaf : "has leaf"));
+
+
+        int newStart = activeEdge;                // start of internal node
+        int newEnd = activeEdge + activeLength - 1;  // end of internal node
+        System.out.println("INTERNAL NODE START " + newStart + " END " + newEnd);
+        InternalNode newInternal = new InternalNode(newStart, newEnd);
+
+        // add nodes to active node
+        if (oldLeaf == null)
+            System.err.println("Warning this should be replacing a leaf off the root");
+        System.out.println("ADDING NEW INTERNAL node at pos " + sequence[newEnd] +
+                " with leaves " + insertChar + ", " + sequence[oldLeafStart]);
+
+        addLeaf(newInternal, startIdx, insertChar);
+        newInternal.addChild(sequence[oldLeafStart], oldLeaf);
+        activeNode.addChild(oldChar, newInternal);
+
+        return newInternal;
+    }
+
+
+    public int startPhase(int startIdx, int remaining) {
+        char insertChar = sequence[startIdx];
+        if (activeLength == 0 && addLeaf(activeNode, startIdx, insertChar))  // tries to add a leaf node 
+            remaining--;
+        else if (sequence[activeEdge + activeLength] == insertChar) {
+                System.out.println("check passed");
+                activeLength++;
+        } else {
+            System.out.println("Inserting node, activeLength = " + activeLength + ", activeEdge = " + activeEdge);
+            insertNode(insertChar, startIdx);
+            if(hello)
+                remaining --;   // TODO shouldn't decrement until a new leaf node is added
+        }
+        return remaining;
+    }
+boolean hello = false;
+    public boolean addLeaf(InternalNode cur, int startIdx, char chr) {
+hello = true;
+        Node child = cur.getChild(chr);
+        if (child == null) {
+            cur.addChild(chr, new LeafNode(startIdx));
+            numLeafNodes++;
+            System.out.println("Added leaf node for chr " + chr + " at pos  " + (cur.getStartIdx() < 0 ? "root" : sequence[cur.getEndIdx()]));
+            return true;
+        } else {
+            //System.out.println("Couldnt add leaf node");
+            activeEdge = child.getStartIdx();
+            return false;
+        }
+    }
+
+    /* 
+     *
+     * InternalNode and LeafNode private classes 
+     *
+     */
+
+    private class InternalNode implements Node {
+        int startIdx;
+        int endIdx;
+        Node[] children;
+        InternalNode suffixLink;
+
+        public InternalNode(int startIdx, int endIdx) {
+            children = new Node[Nodes.numNodes];
+            this.startIdx = startIdx;
+            this.endIdx = endIdx;
+
+            for (int i = 0; i < Nodes.numNodes; i++)         // unnecessary?
+                children[i] = null;
+        }
+
+        //'a', 't', 'c', 'g', '$' for ch representing the child
+        public void addChild(char ch, Node child) {
+            switch(ch) {
+            case('a'):
+                children[Nodes.A.ndx] = child;
+                break;
+            case('t'):
+                children[Nodes.T.ndx] = child;
+                break;
+            case('c'):
+                children[Nodes.C.ndx] = child;
+                break;
+            case('g'):
+                children[Nodes.G.ndx] = child;
+                break;
+            case('$'):
+                children[Nodes.DOLLAR.ndx]= child;
+                break;
+            default:
+                System.err.println("Error: Could not add child " + ch + " to internal node");
+            }
+        }
+
+        public int getStartIdx() {
+            return startIdx;
+        }
+
+        public int getEndIdx() {
+            return endIdx;
+        }
+
+        public void setStartIdx(int idx) {
+            startIdx = idx;
+        }
+
+        public void setEndIdx(int idx) {
+            endIdx = idx;
+        }
+
+        public String getAllChildren() {
+            return "A: " + children[Nodes.A.ndx] + " "
+                + "C: " + children[Nodes.C.ndx] + " "
+                + "T: " + children[Nodes.T.ndx] + " "
+                + "G: " + children[Nodes.G.ndx] + " "
+                + "$: " + children[Nodes.DOLLAR.ndx];
+        }
+
+        public Node getChild(char chr) {
+            switch (chr) {
+            case 'a': return children[Nodes.A.ndx];
+            case 'c': return children[Nodes.C.ndx];
+            case 't': return children[Nodes.T.ndx];
+            case 'g': return children[Nodes.G.ndx];
+            case '$': return children[Nodes.DOLLAR.ndx];
+            default: 
+                System.out.println("couldnt get child for chr " + chr);
+                return null;
+            }
+        }
+
+        public int numChildren() {
+            int numChildren = 0;
+            for (int i = 0; i < Nodes.numNodes; i++) 
+                if (children[Nodes.A.ndx] != null)
+                    numChildren++;
+            return numChildren;
+        }
+
+        public int length() {
+            return endIdx - startIdx + 1;
+        }
+    }
+
+    private class LeafNode implements Node {
+        int startIdx;
+        public LeafNode(int startIdx) {
+            this.startIdx = startIdx;
+        }
+
+        // always is the end of the sequence
+        // once a leaf always a leaf
+        public int getEndIdx() {
+            return -1;
+        }
+
+        public int getStartIdx() {
+            return startIdx;
+        }
+
+        public void setStartIdx(int idx) {
+            startIdx = idx;
+        }
+        
+        public String toString() {
+            return "Leaf Node " + startIdx;
+        }
+        
+        public int length() {
+            return end - startIdx + 1;
+        }
+        
+        public Node getChild(char chr) {
+            return null;
+        }
+    }
+
+    /*
+     *
+     * Rest is used for printing tree out
+     *
+     */
+    public void print() {
+        System.out.println("TREE for " + new String(sequence));
+		printTree(root, 0);
+    }
+
+    private void printTree(Node cur, int indent) {
+        //for (int i = 0; i < indent; i++) { System.out.print(" "); }
+        if (cur != null && cur instanceof InternalNode) {
+            printNode(cur, indent);
+            for (Node n : ((InternalNode) cur).children) {
+                if (n != null) {
+                    //printNode(n, indent);
+                    printTree(n, indent + 4);
+                }
+            }
+        }
+        else {
+            printNode(cur, indent);
+		}
+    }
+
+    private void printNode(Node node, int indent) {
+        for (int i = 0; i < indent; i++) { System.out.print(" "); }
+        int start = node.getStartIdx();
+        int endNode = node.getEndIdx() == -1 ? end : node.getEndIdx();
+        
+        for (int i = start; i <= endNode && i >= 0; i++) 
+            System.out.print(sequence[i]);
+		if (start < 0)
+			System.out.print("root");
+        System.out.println("   " + start + ", " + endNode + (node instanceof InternalNode ? "--num children: " + ((InternalNode)node).numChildren() : ""));
+    }
+
+	private Node getLastChild(InternalNode node) {
+		for (int i = Nodes.numNodes - 1; i >= 0; i--) {
+			if (node.children[i] != null)
+				return node;
+		}
+		return null;
+	}
+}
