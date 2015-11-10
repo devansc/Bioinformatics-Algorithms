@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 public class Window {
    int start;
    int end;
@@ -33,6 +38,10 @@ public class Window {
    
    public double gcPercent() {
       return ((double)(numC + numG) / 200) * 100;
+   }
+   
+   public String toString() {
+       return String.format("%d,%d,%.2f,%.2f", start, end, obsOverExp(), gcPercent());
    }
    
    public void printWindow() {
