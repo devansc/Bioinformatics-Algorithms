@@ -28,11 +28,11 @@ public class Window {
    public double obsOverExp() {
       if(numC == 0 || numG == 0)
          return 0;
-      return (numCpG * 200) / (numC * numG);
+      return (double)(numCpG * 200) / (numC * numG);
    }
    
    public double gcPercent() {
-      return ((numC + numG) / 200) * 100;
+      return ((double)(numC + numG) / 200) * 100;
    }
    
    public void printWindow() {

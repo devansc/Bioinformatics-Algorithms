@@ -92,17 +92,15 @@ public class GCReader {
    // Removes all windows not satisfying the CpG requirements
    private void pruneWindows() {
       for(int i = 0; i < windows.size(); i++) {
-         if(windows.get(i).obsOverExp() < .6)
-            windows.remove(i);
-         else if(windows.get(i).gcPercent() < 50)
-            windows.remove(i);
+         if(windows.get(i).obsOverExp() < .6 || windows.get(i).gcPercent() < 50)
+            windows.remove(i--);
       }
    }
-   
+
    private void printWindows() {
       for(int i = 0; i < windows.size(); i++) {
          System.out.println("[][][][][][][][][][][]");
-         System.out.println("CpG #" + i + 1);
+         System.out.println("CpG #" + i);
          windows.get(i).printWindow();
       }
    }
