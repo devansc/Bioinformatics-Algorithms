@@ -154,6 +154,8 @@ public class MainFrame extends javax.swing.JFrame {
                 showPopup("Error", "Error occured");
             }
         }
+
+        showPopup("WOOP WOOP!", "lab3-Output.csv created");
     }                                        
 
     private void showPopup(String title, String text) {
