@@ -20,7 +20,7 @@ public class Driver
         this.gtf = gtf;
     }
 
-    public void start() throws IOException {
+    public void start() throws Exception {
         int sequenceLength;
         genes = new ArrayList();
         in =  new Scanner(gtf);
@@ -29,7 +29,7 @@ public class Driver
         
         System.out.println("sequenceLength is " + sequenceLength + "\n");
         
-        processGTF(in);
+        processGTF(in, sequenceLength);
         
         /*
         System.out.println("\n\nSummary of genes");
@@ -54,8 +54,7 @@ public class Driver
     private void buildCSV(double avgGeneSize, int sizeAllGenes, double avgExonSize, int sizeAllExons, double relExonCoverage, int totalLength, double stanDev) throws FileNotFoundException, UnsupportedEncodingException{
         PrintWriter writer = new PrintWriter("lab3-Output.csv", "UTF-8");
         writer.println("Average gene size,Size of all genes,Average exon size,Exon Size SD,Size of all exons,Relative exon coverage (%),Total length of DNA");
-        writer.printf(avgGeneSize + ","  + sizeAllGenes + "," + avgExonSize + ","
-         + stanDev + "," + sizeAllExons + "," + relExonCoverage + "," + totalLength);
+        writer.printf("%.2f,%d,%.2f,%.2f,%d,%.2f,%d\n", avgGeneSize, sizeAllGenes, avgExonSize, stanDev, sizeAllExons, relExonCoverage, totalLength);
 
         writer.close();
     }
@@ -82,14 +81,14 @@ public class Driver
     /**
      * Processes the given GTF file, creating the corresponding genes in the process
      */
-    private static void processGTF(Scanner in) {
+    private static void processGTF(Scanner in, int seqLen) throws Exception {
         String[] currLine;
         String currGName = null;
         String currGRoot = null;
         String tempName, tempRoot;
         Gene currGene = null;
         
-        while (in.hasNextLine()) {                        
+        while (in.hasNextLine()) {
             currLine = in.nextLine().split("\\s", 9);
             tempName = currLine[8].split(" ")[1].replace("\"", "").replace(";", "");
             tempRoot = tempName.substring(0, tempName.lastIndexOf("-"));
@@ -101,8 +100,12 @@ public class Driver
                 currGRoot = tempRoot;
                 currGName = tempName;
                 genes.add(currGene);
-            }            
-            
+            }
+
+            if(currGene.getStop() >= seqLen) {
+                throw new Exception("GTF length is larger than FASTA length");
+            }
+
             // Checks to see if we are still looking at the same
             //     gene and splice-variant
             if (tempName.equals(currGName)) {
@@ -117,7 +120,7 @@ public class Driver
                         currGene.newExon(new Exon(Integer.valueOf(currLine[3]), Integer.valueOf(currLine[4])));
                         break;
                 }
-            }        
+            }
         }
     }
 
