@@ -267,6 +267,7 @@ public class GCApp extends javax.swing.JFrame {
                 int step = Integer.parseInt(stepSize.getText());
                 if (step <= 0) {
                     showPopup("ERROR", "Step size needs to be greater than 0"); 
+                    return;
                 }
                 gcr.ReadGCContent(GCfile, Integer.parseInt(windowWidth.getText()), step);
                 JOptionPane error = new JOptionPane();
@@ -285,6 +286,7 @@ public class GCApp extends javax.swing.JFrame {
                 int step = Integer.parseInt(stepSize.getText());
                 if (step <= 0) {
                     showPopup("ERROR", "Step size needs to be greater than 0"); 
+                    return;
                 }
                 String filename = gcr.ReadGCContent(OutputText.getText(), Integer.parseInt(windowWidth.getText()), step);
                 JOptionPane error = new JOptionPane();
