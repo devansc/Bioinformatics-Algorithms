@@ -149,9 +149,10 @@ public class MainFrame extends javax.swing.JFrame {
             Driver driver = new Driver(FastaFile, GFFFile);
             try {
                 driver.start();
+                showPopup("WOOP WOOP!", "lab3-Output.csv created");
             }
             catch (Exception e) {
-                showPopup("Error", "Error occured");
+                showPopup("Error", e.toString());
             }
         }
     }                                        

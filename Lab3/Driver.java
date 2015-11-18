@@ -20,7 +20,7 @@ public class Driver
         this.gtf = gtf;
     }
 
-    public void start() throws IOException {
+    public void start() throws Exception {
         int sequenceLength;
         genes = new ArrayList();
         in =  new Scanner(gtf);
@@ -29,7 +29,7 @@ public class Driver
         
         System.out.println("sequenceLength is " + sequenceLength + "\n");
         
-        processGTF(in);
+        processGTF(in, sequenceLength);
         
         /*
         System.out.println("\n\nSummary of genes");
@@ -42,16 +42,19 @@ public class Driver
         double totalGeneSize = totalGeneSize();
         //System.out.println("Average gene size " + );
         double totalExonSize = totalExonSize();
+        double averageExonSize = averageExonSize(totalExonSize);
+        double stanDev = calcSD(averageExonSize);
         //System.out.println("Average exon size " + );
         //System.out.println("Relative exon coverage " +  + "%");
-        buildCSV(averageGeneSize(totalGeneSize), (int)totalGeneSize, averageExonSize(totalExonSize), (int)totalExonSize, round2(100 * totalExonSize / sequenceLength), sequenceLength);
+        System.out.println("Standard deviation is " + stanDev);
+        buildCSV(averageGeneSize(totalGeneSize), (int)totalGeneSize, round2(averageExonSize), (int)totalExonSize, round2(100 * totalExonSize / sequenceLength), sequenceLength, round2(stanDev));
     }
 
     //Builds a CSV file contianing the window positions and GC Counts for the input specified
-    private void buildCSV(double avgGeneSize, int sizeAllGenes, double avgExonSize, int sizeAllExons, double relExonCoverage, int totalLength) throws FileNotFoundException, UnsupportedEncodingException{
+    private void buildCSV(double avgGeneSize, int sizeAllGenes, double avgExonSize, int sizeAllExons, double relExonCoverage, int totalLength, double stanDev) throws FileNotFoundException, UnsupportedEncodingException{
         PrintWriter writer = new PrintWriter("lab3-Output.csv", "UTF-8");
-        writer.println("Average gene size,Size of all genes,Average exon size,Size of all exons,Relative exon coverage (%),Total length of DNA");
-        writer.printf(avgGeneSize + ","  + sizeAllGenes + "," + avgExonSize + "," + sizeAllExons + "," + relExonCoverage + "," + totalLength);
+        writer.println("Average gene size,Size of all genes,Average exon size,Exon Size SD,Size of all exons,Relative exon coverage (%),Total length of DNA");
+        writer.printf("%.2f,%d,%.2f,%.2f,%d,%.2f,%d\n", avgGeneSize, sizeAllGenes, avgExonSize, stanDev, sizeAllExons, relExonCoverage, totalLength);
 
         writer.close();
     }
@@ -78,14 +81,14 @@ public class Driver
     /**
      * Processes the given GTF file, creating the corresponding genes in the process
      */
-    private static void processGTF(Scanner in) {
+    private static void processGTF(Scanner in, int seqLen) throws Exception {
         String[] currLine;
         String currGName = null;
         String currGRoot = null;
         String tempName, tempRoot;
         Gene currGene = null;
         
-        while (in.hasNextLine()) {                        
+        while (in.hasNextLine()) {
             currLine = in.nextLine().split("\\s", 9);
             tempName = currLine[8].split(" ")[1].replace("\"", "").replace(";", "");
             tempRoot = tempName.substring(0, tempName.lastIndexOf("-"));
@@ -97,8 +100,12 @@ public class Driver
                 currGRoot = tempRoot;
                 currGName = tempName;
                 genes.add(currGene);
-            }            
-            
+            }
+
+            if(currGene.getStop() >= seqLen) {
+                throw new Exception("GTF length is larger than FASTA length");
+            }
+
             // Checks to see if we are still looking at the same
             //     gene and splice-variant
             if (tempName.equals(currGName)) {
@@ -113,7 +120,7 @@ public class Driver
                         currGene.newExon(new Exon(Integer.valueOf(currLine[3]), Integer.valueOf(currLine[4])));
                         break;
                 }
-            }        
+            }
         }
     }
 
@@ -152,7 +159,29 @@ public class Driver
             numExons += genes.get(i).getExons().size();
         }
         //System.out.println("Total Exon size " + totalExonSize + " num exons " + numExons);
-        return round2(totalExonSize / numExons);  
+        return totalExonSize / numExons;  
+    }
+
+    /**
+     * Calculates the standard deviation for exon size
+     */
+    private double calcSD(double averageExonSize) {
+        double sum = 0;
+        double numExons = 0;
+        Gene currGene;
+        Exon currExon;
+
+        for (int i = 0; i < genes.size(); i++) {
+            currGene = genes.get(i);
+            numExons += genes.get(i).getExons().size();
+            for (int j = 0; j < currGene.getExons().size(); j++) {
+                currExon = currGene.getExons().get(j);
+                sum += Math.pow((currExon.getStop() - currExon.getStart()) - averageExonSize, 2);
+            }
+        }
+        System.out.println("There are " + numExons + " exons");
+    
+        return Math.sqrt(sum / numExons);
     }
 
     private double totalExonSize() {
