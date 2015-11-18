@@ -154,9 +154,9 @@ public class GCReader {
 
         for(int i = 0; i < gcPercents.size(); i++) {
             if (i == 0) 
-                writer.println((i * stepSize + 1) + "," + gcPercents.get(i) + "," + nCount);
+                writer.printf("%d,%.2f,%d\n", (i * stepSize + 1), gcPercents.get(i), nCount);
             else 
-                writer.println((i * stepSize + 1) + "," + gcPercents.get(i));
+                writer.printf("%d,%.2f\n", (i * stepSize + 1), gcPercents.get(i));
         }
 
         writer.close();
@@ -169,9 +169,9 @@ public class GCReader {
         writer.append("Starting Position of the Window,%GC,TotalNCount\n");
         
         for(int i = 0; i < gcPercents.size(); i++) {
-            String line = (i * stepSize + 1) + "," + gcPercents.get(i) + "\n";
+            String line = String.format("%d,%.2f\n", (i * stepSize + 1), gcPercents.get(i));
             if (i == 0) 
-                line = (i * stepSize + 1) + "," + gcPercents.get(i) + "," + nCount + "\n";
+                line = String.format("%d,%.2f,%d\n", (i * stepSize + 1), gcPercents.get(i), nCount);
             writer.append(line);
         }
 

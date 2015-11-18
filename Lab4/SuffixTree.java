@@ -1,61 +1,85 @@
 import java.util.*;
 
 public class SuffixTree {
-   private InternalNode root;
-   private String sequence;
-   private ArrayList<Integer> foundIndices;
-   
-   public SuffixTree(String dna) {
-      root = new InternalNode(-1, -1);
-      sequence = dna.toLowerCase() + "$";
-      buildTree();
-   }
-   
-   public Node getRoot() {
-      return root;
-   }
+    private InternalNode root;
+    private char[] sequence;
+    private InternalNode activeNode;
+    private int activeEdge;
+    private int activeLength;
+    private int end;
+    private int numLeafNodes;
+    private InternalNode lastInsertedNode;
+    private InternalNode traceLastFound;
 
-   public void reset() {
-      foundIndices = new ArrayList<Integer>();
-   }
+    public enum Nodes {
+        A(0), T(1), C(2), G(3), DOLLAR(4);
 
-   public ArrayList<Integer> findString(String toMatch) {
-      return findString(toMatch, root);
-   }
+        private static final int numNodes = 5;
+        private final int ndx;
 
-   //Returns null on no match
-   public ArrayList<Integer> findString(String toMatch, Node current) {
-      switch(toMatch.charAt(0)) {
-         case('a'):
-            if(((InternalNode)current).a == null)
-               return null;
-            current = ((InternalNode)current).a;
-            break;
-         case('t'):
-            if(((InternalNode)current).t == null)
-               return null;
-            current = ((InternalNode)current).t;
-            break;
-         case('c'):
-            if(((InternalNode)current).c == null)
-               return null;
-            current = ((InternalNode)current).c;
-            break;
-         case('g'):
-            if(((InternalNode)current).g == null)
-               return null;
-            current = ((InternalNode)current).g;
-            break;
-         default:
-            return null;
-      }
+        Nodes(int num) {
+            this.ndx = num;
+        }
+    }
 
-      int i, j;
-      for(i = current.getStartIdx(), j = 0; i <= current.getEndIdx(); i++, j++) {
-         if(sequence.charAt(i) == toMatch.charAt(j)) {
-            if(j == toMatch.length() - 1) {
-               findIndices(current);
-               break;
+    public SuffixTree (String dna) {
+        root = new InternalNode(-1, -1);
+        root.suffixLink = root;
+        sequence = (dna.toLowerCase() + "$").toCharArray();
+        activeNode = root;
+        activeEdge = -1;
+        activeLength = 0;
+        end = -1;
+        numLeafNodes = 0;
+        traceLastFound = null;
+        buildTree();
+    }
+
+
+    public ArrayList<Integer> findString(String pattern) {
+        TraceInfo info = traceString(pattern.toLowerCase().toCharArray(), 0, root);
+        if (info.found) {
+            System.out.println("Found!");
+        }
+        else {
+            System.out.println("Not found!");
+        }
+        return new ArrayList<Integer>();
+    }
+
+    private class TraceInfo {
+        InternalNode comingFrom;
+        Node goingTo;
+        int splitNdx;
+        boolean found;
+
+        public TraceInfo(boolean found, InternalNode comingFrom, Node goingTo, int splitNdx) {
+            this.found = found;
+            this.comingFrom = comingFrom;
+            this.goingTo = goingTo;
+            this.splitNdx = splitNdx;
+        }
+        /*
+        public String toString() {
+            return "TraceInfo comingFrom " + comingFrom.getStartIdx() + " activeLength " + splitNdx + " found " + found + " goingTo " + goingTo.getStartIdx();
+        }
+        */
+    }
+
+    public TraceInfo traceString(char[] pattern, int curPosPattern, InternalNode comingFrom) {
+        char currentPatternChar = pattern[curPosPattern];
+        Node goingTo = comingFrom.getChild(currentPatternChar);
+        if (goingTo == null) {
+            return new TraceInfo(false, comingFrom, null, 0);
+        }
+        
+        int edgeStart = goingTo.getStartIdx();
+        int edgePos = 0;
+        for (; edgePos < goingTo.length() && curPosPattern < pattern.length; edgePos++, curPosPattern++) {
+            if (pattern[curPosPattern] != sequence[edgeStart + edgePos]) {
+                System.out.println("edgeStart " + edgeStart + " edgePos " + edgePos);
+                System.out.println("Need to insert leaf " + pattern[curPosPattern] + " != " + sequence[edgeStart + edgePos]);
+                return new TraceInfo(false, comingFrom, goingTo, edgePos);
             }
          }
          else

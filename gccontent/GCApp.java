@@ -253,12 +253,22 @@ public class GCApp extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_filenameTextActionPerformed
 
+    private void showPopup(String title, String text) {
+        JOptionPane error = new JOptionPane();
+        error.showMessageDialog(null, text, title, JOptionPane.ERROR_MESSAGE);
+        error.setVisible(true);
+    }
+    
     private void calculateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_calculateButtonActionPerformed
         GCReader gcr = new GCReader();
             
         if (!filenameText.getText().equals("")) {
             try {
-                gcr.ReadGCContent(GCfile, Integer.parseInt(windowWidth.getText()), Integer.parseInt(stepSize.getText()));
+                int step = Integer.parseInt(stepSize.getText());
+                if (step <= 0) {
+                    showPopup("ERROR", "Step size needs to be greater than 0"); 
+                }
+                gcr.ReadGCContent(GCfile, Integer.parseInt(windowWidth.getText()), step);
                 JOptionPane error = new JOptionPane();
                 error.showMessageDialog(null, "CSV file created", "Done", JOptionPane.ERROR_MESSAGE);
                 error.setVisible(true);
@@ -272,7 +282,11 @@ public class GCApp extends javax.swing.JFrame {
         }
         else if (!OutputText.getText().equals("")) {
             try {
-                String filename = gcr.ReadGCContent(OutputText.getText(), Integer.parseInt(windowWidth.getText()), Integer.parseInt(stepSize.getText()));
+                int step = Integer.parseInt(stepSize.getText());
+                if (step <= 0) {
+                    showPopup("ERROR", "Step size needs to be greater than 0"); 
+                }
+                String filename = gcr.ReadGCContent(OutputText.getText(), Integer.parseInt(windowWidth.getText()), step);
                 JOptionPane error = new JOptionPane();
                 error.showMessageDialog(null, "CSV file " + filename + " created", "Done", JOptionPane.ERROR_MESSAGE);
                 error.setVisible(true);
