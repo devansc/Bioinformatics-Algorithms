@@ -33,7 +33,7 @@ final public class PAM250 {
  * Refer to above matrix for corrseponding amino acids
  * i.e. score(A, R) corresponds to  matrix[0][1]=matrix[1][0]=-1
 */
-    public PAM250() {
+    public static double[][] getMatrix() {
         double[][] matrix = new double [][] {
                     {13,    6,    9,    9,    5,   8,   9,  12,   6,   8,   6,   7,   7,   4,  11,  11,  11,   2,   4,   9},
                     { 3,   17,    4,    3,    2,   5,   3,   2,   6,   3,   2,   9,   4,   1,   4,   4,   3,   7,   2,   2},
@@ -55,6 +55,8 @@ final public class PAM250 {
                     { 0,    2,    0,    0,    0,   0,   0,   0,   1,   0,   1,   0,   0,   1,   0,   1,   0,  55,   1,   0},
                     { 1,    1,    2,    1,    3,   1,   1,   1,   3,   2,   2,   1,   2,  15,   1,   2,   2,   3,  31,   2},
                     { 7,    4,    4,    4,    4,   4,   4,   4,   5,   4,  15,   10,   4,  10,   5,   5,   5,  72,   4,  17}};
+        
+        return matrix;
     }
 }
 
