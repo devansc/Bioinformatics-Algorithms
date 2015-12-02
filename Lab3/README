@@ -1,0 +1,13 @@
+Team 5
+Tim Mendez, Matt Versaggi, Devan Carlson
+
+To compile:
+   javac Exon.java Gene.java Driver.java MainFrame.java
+      OR
+   javac *.java
+
+To execute:
+   java MainFrame
+   (^only after compilation)
+      OR
+   java -jar GeneDensity.jar

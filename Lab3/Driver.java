@@ -31,21 +31,10 @@ public class Driver
         
         processGTF(in, sequenceLength);
         
-        /*
-        System.out.println("\n\nSummary of genes");
-        System.out.println("****************************\n");
-        
-        for (int i = 0; i < genes.size(); i++)
-            genes.get(i).printGene();
-        */
-
         double totalGeneSize = totalGeneSize();
-        //System.out.println("Average gene size " + );
         double totalExonSize = totalExonSize();
         double averageExonSize = averageExonSize(totalExonSize);
         double stanDev = calcSD(averageExonSize);
-        //System.out.println("Average exon size " + );
-        //System.out.println("Relative exon coverage " +  + "%");
         System.out.println("Standard deviation is " + stanDev);
         buildCSV(averageGeneSize(totalGeneSize), (int)totalGeneSize, round2(averageExonSize), (int)totalExonSize, round2(100 * totalExonSize / sequenceLength), sequenceLength, round2(stanDev));
     }
