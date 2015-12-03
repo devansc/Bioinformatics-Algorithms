@@ -29,16 +29,15 @@ public class Alignment {
 
         for(int i = 1; i <= pattern.length(); i++) {
             for(int j = 1; j <= sequence.length(); j++) {
-               System.out.println(i + " = " + pattern.length());
-               System.out.println(j + " = " + sequence.length());
-                Entry replace = new Entry(table[i - 1][j - 1].getScore() + score(pattern.charAt(i), sequence.charAt(j)), Direction.DIAG);
+                // i -1 and j - 1 in pattern/sequence.charAt() because the index isn't the same as the loop
+                Entry replace = new Entry(table[i - 1][j - 1].getScore() + score(pattern.charAt(i - 1), sequence.charAt(j - 1)), Direction.DIAG);
                 Entry insert = new Entry(table[i][j - 1].getScore() + gapPenalty, Direction.UP);
                 Entry delete = new Entry(table[i - 1][j].getScore() + gapPenalty, Direction.LEFT);
 
                 table[i][j] = getMaxEntry(replace, insert, delete);
             }
         }
-        System.out.println(table[pattern.length()][sequence.length()].getScore());
+        //System.out.println(table[pattern.length()][sequence.length()].getScore());
     }
 
     
