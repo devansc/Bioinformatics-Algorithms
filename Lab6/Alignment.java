@@ -37,6 +37,11 @@ public class Alignment {
     }
 
     
+    private int score(char patChar, char seqChar) {
+       return subMatrix[translateScore(patChar)][translateScore(seqChar)];
+    }
+    
+    
     private Entry getMaxEntry(Entry replace, Entry insert, Entry delete) {
         int max = Math.max(replace.getScore(), Math.max(insert.getScore(), delete.getScore()));
 
@@ -47,12 +52,7 @@ public class Alignment {
         else
             return delete;
     }
-
-
-    private int score(char pat, char seq) {
-        return 0;
-    }
-
+    
 
     private class Entry {
         int score;
@@ -71,5 +71,15 @@ public class Alignment {
 
     public enum Direction {
         UP, LEFT, DIAG, NONE
+    }
+    
+    
+    private int translateScore(char c) {
+       String lazy = "ARNDCQEGHILKMFPSTWYV";
+       for(int i = 0; i < lazy.length(); i++) {
+          if(c == lazy.charAt(i))
+             return i;
+       }
+       return -1;
     }
 }
