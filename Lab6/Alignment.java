@@ -13,10 +13,12 @@ public class Alignment {
         subMatrix = subMat;
         //               [rows][columns]
         table = new Entry[pat.length() + 1][seq.length() + 1];
+        
+        buildTable();
     }
 
 
-    public void buildTable() {
+    private void buildTable() {
         // Top left, base case
         table[0][0] = new Entry(0, Direction.NONE);
 
@@ -27,6 +29,8 @@ public class Alignment {
 
         for(int i = 1; i <= pattern.length(); i++) {
             for(int j = 1; j <= sequence.length(); j++) {
+               System.out.println(i + " = " + pattern.length());
+               System.out.println(j + " = " + sequence.length());
                 Entry replace = new Entry(table[i - 1][j - 1].getScore() + score(pattern.charAt(i), sequence.charAt(j)), Direction.DIAG);
                 Entry insert = new Entry(table[i][j - 1].getScore() + gapPenalty, Direction.UP);
                 Entry delete = new Entry(table[i - 1][j].getScore() + gapPenalty, Direction.LEFT);
@@ -34,11 +38,17 @@ public class Alignment {
                 table[i][j] = getMaxEntry(replace, insert, delete);
             }
         }
+        System.out.println(table[pattern.length()][sequence.length()].getScore());
     }
 
     
     private int score(char patChar, char seqChar) {
        return subMatrix[translateScore(patChar)][translateScore(seqChar)];
+    }
+    
+    
+    public int getAlignmentScore() {
+       return table[pattern.length()][sequence.length()].getScore();
     }
     
     
@@ -80,6 +90,8 @@ public class Alignment {
           if(c == lazy.charAt(i))
              return i;
        }
+       System.out.println("UH OH");
+       System.out.println(c);
        return -1;
     }
 }
