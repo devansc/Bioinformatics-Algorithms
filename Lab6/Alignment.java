@@ -9,7 +9,7 @@ public class Alignment {
     public Alignment(String seq, String pat, int gapPen, int[][] subMat) {
         sequence = seq;
         pattern = pat;
-        gapPenalty = gapPen;
+        gapPenalty = gapPen * -1;
         subMatrix = subMat;
         //               [rows][columns]
         table = new Entry[pat.length() + 1][seq.length() + 1];
