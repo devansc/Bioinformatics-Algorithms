@@ -1,3 +1,5 @@
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -230,7 +232,6 @@ public class GUI extends javax.swing.JFrame {
         }
         
         runAlignments(gapPenalty);
-        // showPopup("DONE", "CSV file " + filename " created");
     }//GEN-LAST:event_goButtonActionPerformed
 
     private void runAlignments(int gapPenalty) {
@@ -253,8 +254,29 @@ public class GUI extends javax.swing.JFrame {
             alignmentScores.add(algn.getAlignmentScore());
         }
         
-        printScores(alignmentScores);
+        String filepath = sequenceFile + "-Alignment-scores.csv";
+        try { buildCSV(filepath, gapPenalty, alignmentScores); }
+        catch (Exception e) {
+            showPopup("ERROR", "Error occured making csv, msg: " + e);
+        }
     }
+
+    private void buildCSV(String filename, int gapPenalty, ArrayList<Integer> alignmentScores) 
+     throws FileNotFoundException, UnsupportedEncodingException {
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        String matrixUsed = pamRadio.isSelected() ? "PAM250" : "BLOSUM62"; 
+
+        writer.printf("Matrix,Gap Penalty,Sequence,Alignment Score\n", matrixUsed);
+        
+        for (int i = 0; i < alignmentScores.size(); i++) {
+            writer.printf("%s,%d,%s,%d\n", matrixUsed, gapPenalty, sequenceNames.get(i), alignmentScores.get(i));
+        }
+        
+        writer.close();
+
+        showPopup("Done", "CSV file " + filename + " created");
+    }
+    
 
 
     private static void printScores(ArrayList<Integer> alignmentScores) {

@@ -43,8 +43,6 @@ public class Alignment {
                 }
             }
         }
-        printTable();
-        //System.out.println(table[pattern.length()][sequence.length()].getScore());
     }
 
     private void printTable() {
