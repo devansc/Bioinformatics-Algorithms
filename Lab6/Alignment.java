@@ -4,6 +4,7 @@ public class Alignment {
     Entry[][] table;
     int gapPenalty;
     int[][] subMatrix;
+    int maxScore;
 
 
     public Alignment(String seq, String pat, int gapPen, int[][] subMat) {
@@ -13,6 +14,7 @@ public class Alignment {
         subMatrix = subMat;
         //               [rows][columns]
         table = new Entry[pat.length() + 1][seq.length() + 1];
+        maxScore = 0;
         
         buildTable();
     }
@@ -23,9 +25,9 @@ public class Alignment {
         table[0][0] = new Entry(0, Direction.NONE);
 
         for(int i = 1; i <= sequence.length(); i++)
-            table[0][i] = new Entry(gapPenalty * i, Direction.LEFT);
+            table[0][i] = new Entry(0, Direction.LEFT);
         for(int i = 1; i <= pattern.length(); i++)
-            table[i][0] = new Entry(gapPenalty * i, Direction.UP);
+            table[i][0] = new Entry(0, Direction.UP);
 
         for(int i = 1; i <= pattern.length(); i++) {
             for(int j = 1; j <= sequence.length(); j++) {
@@ -34,12 +36,25 @@ public class Alignment {
                 Entry insert = new Entry(table[i][j - 1].getScore() + gapPenalty, Direction.UP);
                 Entry delete = new Entry(table[i - 1][j].getScore() + gapPenalty, Direction.LEFT);
 
-                table[i][j] = getMaxEntry(replace, insert, delete);
+                Entry entry = getMaxEntry(replace, insert, delete);
+                table[i][j] = entry;
+                if (entry.score > maxScore) {
+                    maxScore = entry.score;
+                }
             }
         }
+        printTable();
         //System.out.println(table[pattern.length()][sequence.length()].getScore());
     }
 
+    private void printTable() {
+        for (Entry[] row : table) {
+            for (Entry e : row) {
+                System.out.print(e.score + "\t");
+            }         
+            System.out.println();
+        }
+    }
     
     private int score(char patChar, char seqChar) {
        return subMatrix[translateScore(patChar)][translateScore(seqChar)];
@@ -47,7 +62,8 @@ public class Alignment {
     
     
     public int getAlignmentScore() {
-       return table[pattern.length()][sequence.length()].getScore();
+       //return table[pattern.length()][sequence.length()].getScore();
+       return maxScore;
     }
     
     
