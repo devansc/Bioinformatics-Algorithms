@@ -1,0 +1,242 @@
+root   -1, -1--num children: 0
+
+** remaining = 1, insertchar is c 0
+activeLength 0 activeEdge -1 activeNode starting at -1
+root   -1, 0--num children: 0
+    c   0, 0
+
+** remaining = 1, insertchar is c 1
+activeLength 0 activeEdge -1 activeNode starting at -1
+check passed c == c
+root   -1, 1--num children: 0
+    cc   0, 1
+
+** remaining = 2, insertchar is g 2
+activeLength 1 activeEdge 0 activeNode starting at -1
+curNode length is 3
+Inserting node, activeLength = 1, activeEdge = 0
+ oldLeafEndIdx -1 oldLeafStart 1
+ activeLength 1 activeEdge 0 oldLeafStart 1
+ADDING NEW INTERNAL node at pos c with leaves g, c
+
+** remaining = 1, insertchar is g 2
+activeLength 0 activeEdge 1 activeNode starting at -1
+curNode length is 1
+root   -1, 2--num children: 0
+    c   0, 0--num children: 0
+        cg   1, 2
+        g   2, 2
+    g   2, 2
+
+** remaining = 1, insertchar is t 3
+activeLength 0 activeEdge 1 activeNode starting at -1
+curNode length is 1
+root   -1, 3--num children: 0
+    t   3, 3
+    c   0, 0--num children: 0
+        cgt   1, 3
+        gt   2, 3
+    gt   2, 3
+
+** remaining = 1, insertchar is a 4
+activeLength 0 activeEdge 1 activeNode starting at -1
+curNode length is 1
+root   -1, 4--num children: 5
+    a   4, 4
+    ta   3, 4
+    c   0, 0--num children: 0
+        cgta   1, 4
+        gta   2, 4
+    gta   2, 4
+
+** remaining = 1, insertchar is t 5
+activeLength 0 activeEdge 1 activeNode starting at -1
+curNode length is 1
+check passed t == t
+root   -1, 5--num children: 5
+    at   4, 5
+    tat   3, 5
+    c   0, 0--num children: 0
+        cgtat   1, 5
+        gtat   2, 5
+    gtat   2, 5
+
+** remaining = 2, insertchar is a 6
+activeLength 1 activeEdge 3 activeNode starting at -1
+curNode length is 4
+check passed a == a
+root   -1, 6--num children: 5
+    ata   4, 6
+    tata   3, 6
+    c   0, 0--num children: 0
+        cgtata   1, 6
+        gtata   2, 6
+    gtata   2, 6
+
+** remaining = 3, insertchar is g 7
+activeLength 2 activeEdge 3 activeNode starting at -1
+curNode length is 5
+Inserting node, activeLength = 2, activeEdge = 3
+ oldLeafEndIdx -1 oldLeafStart 5
+ activeLength 2 activeEdge 3 oldLeafStart 5
+ADDING NEW INTERNAL node at pos a with leaves g, t
+
+** remaining = 2, insertchar is g 7
+activeLength 1 activeEdge 4 activeNode starting at -1
+curNode length is 4
+Inserting node, activeLength = 1, activeEdge = 4
+ oldLeafEndIdx -1 oldLeafStart 5
+ activeLength 1 activeEdge 4 oldLeafStart 5
+ADDING NEW INTERNAL node at pos a with leaves g, t
+
+** remaining = 1, insertchar is g 7
+activeLength 0 activeEdge 5 activeNode starting at -1
+curNode length is 2
+check passed g == g
+root   -1, 7--num children: 5
+    a   4, 4--num children: 0
+        tag   5, 7
+        g   7, 7
+    ta   3, 4--num children: 0
+        tag   5, 7
+        g   7, 7
+    c   0, 0--num children: 0
+        cgtatag   1, 7
+        gtatag   2, 7
+    gtatag   2, 7
+
+** remaining = 2, insertchar is a 8
+activeLength 1 activeEdge 2 activeNode starting at -1
+curNode length is 7
+Inserting node, activeLength = 1, activeEdge = 2
+ oldLeafEndIdx -1 oldLeafStart 3
+ activeLength 1 activeEdge 2 oldLeafStart 3
+ADDING NEW INTERNAL node at pos g with leaves a, t
+
+** remaining = 1, insertchar is a 8
+activeLength 0 activeEdge 3 activeNode starting at -1
+curNode length is 2
+check passed a == a
+root   -1, 8--num children: 5
+    a   4, 4--num children: 0
+        taga   5, 8
+        ga   7, 8
+    ta   3, 4--num children: 0
+        taga   5, 8
+        ga   7, 8
+    c   0, 0--num children: 0
+        cgtataga   1, 8
+        gtataga   2, 8
+    g   2, 2--num children: 5
+        a   8, 8
+        tataga   3, 8
+
+** remaining = 2, insertchar is g 9
+activeLength 1 activeEdge 4 activeNode starting at -1
+curNode length is 1
+Got to a node a
+root   -1, 9--num children: 5
+    a   4, 4--num children: 0
+        tagag   5, 9
+        gag   7, 9
+    ta   3, 4--num children: 0
+        tagag   5, 9
+        gag   7, 9
+    c   0, 0--num children: 0
+        cgtatagag   1, 9
+        gtatagag   2, 9
+    g   2, 2--num children: 5
+        ag   8, 9
+        tatagag   3, 9
+
+** remaining = 3, insertchar is t 10
+activeLength 1 activeEdge 7 activeNode starting at 4
+curNode length is 4
+Inserting node, activeLength = 1, activeEdge = 7
+ oldLeafEndIdx -1 oldLeafStart 8
+ activeLength 1 activeEdge 7 oldLeafStart 8
+ADDING NEW INTERNAL node at pos g with leaves t, a
+
+** remaining = 2, insertchar is t 10
+activeLength 0 activeEdge 8 activeNode starting at -1
+curNode length is 1
+check passed t == t
+root   -1, 10--num children: 5
+    a   4, 4--num children: 0
+        tagagt   5, 10
+        g   7, 7--num children: 5
+            agt   8, 10
+            t   10, 10
+    ta   3, 4--num children: 0
+        tagagt   5, 10
+        gagt   7, 10
+    c   0, 0--num children: 0
+        cgtatagagt   1, 10
+        gtatagagt   2, 10
+    g   2, 2--num children: 5
+        agt   8, 10
+        tatagagt   3, 10
+
+** remaining = 3, insertchar is c 11
+activeLength 1 activeEdge 3 activeNode starting at -1
+curNode length is 2
+Inserting node, activeLength = 1, activeEdge = 3
+ oldLeafEndIdx 4 oldLeafStart 4
+ activeLength 1 activeEdge 3 oldLeafStart 4
+ADDING NEW INTERNAL node at pos t with leaves c, a
+
+** remaining = 2, insertchar is c 11
+activeLength 0 activeEdge 4 activeNode starting at -1
+curNode length is 1
+check passed c == c
+root   -1, 11--num children: 5
+    a   4, 4--num children: 0
+        tagagtc   5, 11
+        g   7, 7--num children: 5
+            agtc   8, 11
+            tc   10, 11
+    t   3, 3--num children: 5
+        a   4, 4--num children: 0
+            tagagtc   5, 11
+            gagtc   7, 11
+        c   11, 11
+    c   0, 0--num children: 0
+        cgtatagagtc   1, 11
+        gtatagagtc   2, 11
+    g   2, 2--num children: 5
+        agtc   8, 11
+        tatagagtc   3, 11
+
+** remaining = 3, insertchar is $ 12
+activeLength 1 activeEdge 0 activeNode starting at -1
+curNode length is 1
+Got to a node c
+ADDING LEAF
+
+** remaining = 2, insertchar is $ 12
+activeLength 1 activeEdge -1 activeNode starting at -1
+curNode length is 1
+Got to a node SuffixTree$InternalNode@6d06d69c
+TREE for ccgtatagagtc$
+root   -1, 12--num children: 5
+    a   4, 4--num children: 0
+        tagagtc$   5, 12
+        g   7, 7--num children: 5
+            agtc$   8, 12
+            tc$   10, 12
+    t   3, 3--num children: 5
+        a   4, 4--num children: 0
+            tagagtc$   5, 12
+            gagtc$   7, 12
+        c$   11, 12
+    c   0, 0--num children: 0
+        cgtatagagtc$   1, 12
+        gtatagagtc$   2, 12
+        $   12, 12
+    g   2, 2--num children: 5
+        agtc$   8, 12
+        tatagagtc$   3, 12
+jumping to new node
+edgeStart 11 edgePos 1
+Need to insert leaf t != $
+Not found!
